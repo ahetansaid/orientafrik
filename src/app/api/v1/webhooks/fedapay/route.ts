@@ -13,6 +13,7 @@ import {
   marquerStatut,
 } from '@/features/paiement/data/payments.repo';
 import { marquerPlanPaye } from '@/features/bachelier/data/plans.repo';
+import { majStatut as majStatutConsultation } from '@/features/consultant/data/consultations.repo';
 import { versPaymentStatut, type FedapayEvent } from '@/features/paiement/domain/fedapay.types';
 import { getResend, EMAIL_FROM } from '@/lib/email/resend';
 import { RecuPdf } from '@/lib/email/templates/RecuPdf';
@@ -66,9 +67,14 @@ export async function POST(req: NextRequest) {
   const statut = versPaymentStatut(event.entity.status);
   await marquerStatut(service, txId, statut);
 
-  if (statut === 'succeeded' && paiement.purpose === 'pdf_plan' && paiement.related_id) {
-    await marquerPlanPaye(service, paiement.related_id);
-    await envoyerRecu(service, paiement.user_id, paiement.related_id);
+  if (statut === 'succeeded' && paiement.related_id) {
+    if (paiement.purpose === 'pdf_plan') {
+      await marquerPlanPaye(service, paiement.related_id);
+      await envoyerRecu(service, paiement.user_id, paiement.related_id);
+    } else if (paiement.purpose === 'consultation') {
+      // Commission/net déjà figés à la réservation : on confirme simplement.
+      await majStatutConsultation(service, paiement.related_id, 'confirmed');
+    }
   }
 
   return NextResponse.json({ received: true });
