@@ -68,11 +68,11 @@ insert into parcours (slug, titre, domaine, resume, statut, contenu) values
 );
 
 -- ---------- Écoles ----------
-insert into ecoles (slug, nom, type, ville, statut, frais_min_fcfa, frais_max_fcfa, partenariat, badge) values
-('uac',        'Université d''Abomey-Calavi', 'publique',           'Abomey-Calavi', 'published', 0,      50000,   'non_partenaire', null),
-('epac',       'EPAC',                        'publique',           'Abomey-Calavi', 'published', 0,      60000,   'non_partenaire', null),
-('esgis',      'ESGIS',                       'privee_moyenne',     'Cotonou',       'published', 350000, 900000,  'active',         'fondateur'),
-('houdegbe',   'Houdegbé North American Univ.', 'privee_premium',   'Cotonou',       'published', 500000, 1500000, 'prospect',       null);
+insert into ecoles (slug, nom, type, ville, statut, frais_min_fcfa, frais_max_fcfa, partenariat, commission_min_fcfa, commission_max_fcfa, badge) values
+('uac',        'Université d''Abomey-Calavi', 'publique',           'Abomey-Calavi', 'published', 0,      50000,   'non_partenaire', null,   null,   null),
+('epac',       'EPAC',                        'publique',           'Abomey-Calavi', 'published', 0,      60000,   'non_partenaire', null,   null,   null),
+('esgis',      'ESGIS',                       'privee_moyenne',     'Cotonou',       'published', 350000, 900000,  'active',         25000,  50000,  'fondateur'),
+('houdegbe',   'Houdegbé North American Univ.', 'privee_premium',   'Cotonou',       'published', 500000, 1500000, 'prospect',       null,   null,   null);
 
 -- ---------- Bourses ----------
 insert into bourses (nom, organisme, pays, montant, statut, criteres) values
