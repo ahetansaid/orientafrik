@@ -1,0 +1,19 @@
+{
+  "commun": {
+    "marque": "ORIENTAFRIK",
+    "slogan": "Ton orientation post-bac, sans hasard.",
+    "chargement": "Chargement…",
+    "erreurGenerique": "Une erreur est survenue. Réessaie."
+  },
+  "connexion": {
+    "titre": "Connexion",
+    "sousTitre": "Reçois un code à 6 chiffres par email. Pas de mot de passe.",
+    "recevoirCode": "Recevoir mon code",
+    "meConnecter": "Me connecter"
+  },
+  "bachelier": {
+    "planTitre": "Ton Plan de Parcours",
+    "top3": "Tes 3 pistes",
+    "telechargerPdf": "Télécharge le PDF pour 200 F"
+  }
+}

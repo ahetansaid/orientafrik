@@ -1,0 +1,22 @@
+@import 'tailwindcss';
+
+/* Thème marque ORIENTAFRIK (Tailwind v4 — tokens CSS-first).
+   Ces variables exposent bg-navy / text-gold / etc. dans tout le projet.
+   Le PDF (react-pdf) garde ses propres constantes : il ne lit pas Tailwind. */
+@theme {
+  --color-navy: #12224a;
+  --color-gold: #b8860b;
+  --color-gold-soft: #a6790a;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: #f7f8fb;
+  color: #131b30;
+}

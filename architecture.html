@@ -1,0 +1,283 @@
+<title>ORIENTAFRIK — Architecture MVP révisée</title>
+<style>
+  :root {
+    --paper: #f7f8fb;      --panel: #ffffff;     --ink: #131b30;
+    --ink-soft: #43506b;   --faint: #6b7690;     --line: #e3e7f0;
+    --navy: #12224a;       --gold: #a6790a;      --gold-bg: #f7efd9;
+    --keep: #0f7a52;       --keep-bg: #e5f4ec;
+    --reduce: #9a6a00;     --reduce-bg: #f8efd7;
+    --cut: #a23b3b;        --cut-bg: #f7e6e4;
+    --code-bg: #eef1f7;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0c1120;    --panel: #131b2e;     --ink: #e9edf6;
+      --ink-soft: #b3bdd2; --faint: #7c88a3;     --line: #263248;
+      --navy: #cdd8f0;     --gold: #e0b64e;      --gold-bg: #2a2410;
+      --keep: #58c896;     --keep-bg: #10281f;
+      --reduce: #d6a542;   --reduce-bg: #2a2210;
+      --cut: #e08a83;      --cut-bg: #2b1614;
+      --code-bg: #1b2439;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f8fb; --panel: #ffffff; --ink: #131b30; --ink-soft: #43506b;
+    --faint: #6b7690; --line: #e3e7f0; --navy: #12224a; --gold: #a6790a;
+    --gold-bg: #f7efd9; --keep: #0f7a52; --keep-bg: #e5f4ec; --reduce: #9a6a00;
+    --reduce-bg: #f8efd7; --cut: #a23b3b; --cut-bg: #f7e6e4; --code-bg: #eef1f7;
+  }
+  :root[data-theme="dark"] {
+    --paper: #0c1120; --panel: #131b2e; --ink: #e9edf6; --ink-soft: #b3bdd2;
+    --faint: #7c88a3; --line: #263248; --navy: #cdd8f0; --gold: #e0b64e;
+    --gold-bg: #2a2410; --keep: #58c896; --keep-bg: #10281f; --reduce: #d6a542;
+    --reduce-bg: #2a2210; --cut: #e08a83; --cut-bg: #2b1614; --code-bg: #1b2439;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font-family: var(--sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 60rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  /* Header */
+  header.doc { border-bottom: 2px solid var(--navy); padding-bottom: 1.5rem; margin-bottom: 2.5rem; }
+  .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .18em;
+             text-transform: uppercase; color: var(--gold); }
+  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(1.9rem, 4vw, 2.9rem);
+       color: var(--navy); margin: .35rem 0 .4rem; letter-spacing: -.01em; text-wrap: balance; }
+  .sub { color: var(--ink-soft); font-size: 1.05rem; max-width: 46rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.1rem; }
+  .chip { font-family: var(--mono); font-size: .72rem; padding: .28rem .6rem; border-radius: 5px;
+          background: var(--panel); border: 1px solid var(--line); color: var(--ink-soft); }
+
+  section { margin-top: 3rem; }
+  h2 { font-family: var(--serif); font-size: 1.5rem; color: var(--navy); margin: 0 0 .3rem;
+       display: flex; align-items: baseline; gap: .7rem; text-wrap: balance; }
+  h2 .num { font-family: var(--mono); font-size: .9rem; color: var(--gold); }
+  .lead { color: var(--ink-soft); margin: 0 0 1.3rem; max-width: 48rem; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.4rem 1.5rem; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* Verdict callout */
+  .verdict { border-left: 3px solid var(--gold); padding-left: 1.2rem; }
+  .verdict strong { color: var(--navy); }
+
+  /* Tables */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; min-width: 34rem; }
+  th, td { text-align: left; padding: .7rem .9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th { background: var(--navy); color: #fff; font-size: .74rem; text-transform: uppercase;
+             letter-spacing: .05em; font-weight: 600; }
+  :root[data-theme="dark"] thead th, @media (prefers-color-scheme: dark) { }
+  tbody tr:last-child td { border-bottom: none; }
+  td code, .mono { font-family: var(--mono); font-size: .82rem; }
+  td .name { font-weight: 600; color: var(--ink); }
+
+  .tag { display: inline-block; font-family: var(--mono); font-size: .68rem; font-weight: 600;
+         padding: .18rem .5rem; border-radius: 4px; white-space: nowrap; }
+  .t-keep   { background: var(--keep-bg);   color: var(--keep); }
+  .t-reduce { background: var(--reduce-bg); color: var(--reduce); }
+  .t-cut    { background: var(--cut-bg);    color: var(--cut); }
+
+  /* Freemium two-lane */
+  .lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: .5rem; }
+  @media (max-width: 640px) { .lanes { grid-template-columns: 1fr; } }
+  .lane { border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem; background: var(--panel); }
+  .lane h3 { margin: 0 0 .2rem; font-size: 1.05rem; color: var(--navy); }
+  .lane .price { font-family: var(--mono); font-size: .78rem; color: var(--gold); }
+  .lane ul { margin: .8rem 0 0; padding-left: 1.1rem; font-size: .88rem; color: var(--ink-soft); }
+  .lane li { margin-bottom: .3rem; }
+  .lane.free { border-top: 3px solid var(--keep); }
+  .lane.paid { border-top: 3px solid var(--gold); }
+
+  .flow { font-family: var(--mono); font-size: .8rem; color: var(--ink-soft); background: var(--code-bg);
+          border-radius: 8px; padding: .9rem 1rem; margin-top: 1rem; overflow-x: auto; white-space: nowrap; }
+  .flow b { color: var(--navy); }
+
+  /* Three sides */
+  .sides { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 720px) { .sides { grid-template-columns: 1fr; } }
+  .side { border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.2rem; background: var(--panel); }
+  .side h3 { margin: 0 0 .5rem; font-size: 1rem; color: var(--navy); display: flex; gap: .5rem; align-items: center; }
+  .side .role { font-family: var(--mono); font-size: .7rem; color: var(--gold); }
+  .side p { font-size: .85rem; color: var(--ink-soft); margin: 0 0 .6rem; }
+  .side .rls { font-family: var(--mono); font-size: .74rem; color: var(--ink-soft);
+               border-top: 1px dashed var(--line); padding-top: .6rem; }
+
+  ul.checklist { list-style: none; padding: 0; margin: 0; }
+  ul.checklist li { padding: .7rem 0 .7rem 2rem; border-bottom: 1px solid var(--line); position: relative; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: attr(data-n); position: absolute; left: 0; top: .6rem;
+    font-family: var(--mono); font-size: .72rem; font-weight: 700; color: var(--gold);
+    background: var(--gold-bg); width: 1.4rem; height: 1.4rem; border-radius: 5px;
+    display: grid; place-items: center; }
+  ul.checklist b { color: var(--navy); }
+
+  footer.doc { margin-top: 3.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line);
+               font-size: .8rem; color: var(--faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
+</style>
+
+<div class="wrap">
+  <header class="doc">
+    <div class="eyebrow">Étude de faisabilité · Note technique</div>
+    <h1>Architecture MVP révisée — ORIENTAFRIK</h1>
+    <p class="sub">Plateforme tripartite d'orientation post-bac. Cette note fige la stack, tranche
+       la génération du Plan de Parcours, et recentre le périmètre pour tenir la fenêtre de lancement.</p>
+    <div class="chips">
+      <span class="chip">Bénin · Cotonou métropole</span>
+      <span class="chip">Email-first (WhatsApp/SMS → Phase 2)</span>
+      <span class="chip">Bootstrap · sans levée</span>
+      <span class="chip">Drwintech SaaS Solutions</span>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="num">01</span> Verdict de faisabilité</h2>
+    <div class="panel verdict">
+      <p style="margin-top:0"><strong>Faisable — mais le risque n'est pas technique.</strong> La stack est saine.
+      Les trois vraies menaces sur le MVP sont, dans l'ordre :</p>
+      <p style="margin-bottom:0">
+      <strong>1. Le contenu</strong> — 8 Plans de Parcours vérifiés produits par une personne à temps partiel.
+      C'est le chemin critique. &nbsp;·&nbsp;
+      <strong>2. La bande passante solo</strong> — un dev qui porte dev + design + marketing + compta.&nbsp;·&nbsp;
+      <strong>3. Deux briques</strong> — génération PDF et split de paiement, tranchées ci-dessous.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> Stack MVP figée</h2>
+    <p class="lead">Mainstream, économique, cohérente avec l'existant Drwintech. Choix orientés « atteindre
+       vite et bien » : chaque brique est managée, à plan gratuit généreux, sans ops lourde.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Couche</th><th>Choix</th><th>Pourquoi ce choix</th></tr></thead>
+        <tbody>
+          <tr><td class="name">Framework</td><td><code>Next.js 16</code> · App Router, Server Actions, RSC</td>
+              <td>Aligné projet Indiana. SSR + CDN Vercel, un seul repo front/back.</td></tr>
+          <tr><td class="name">Hébergement</td><td><code>Vercel</code></td>
+              <td>Déploiement continu, gratuit en MVP, Pro dès la montée en charge.</td></tr>
+          <tr><td class="name">Base + Auth + Storage</td><td><code>Supabase</code> (Postgres, RLS)</td>
+              <td>Postgres managé, <b>RLS</b> pour l'isolation des 3 côtés, Storage pour les PDF.</td></tr>
+          <tr><td class="name">Authentification</td><td>Supabase Auth — <b>email OTP / magic link</b></td>
+              <td>Email-first assumé. Zéro coût SMS, pas de friction mot de passe.</td></tr>
+          <tr><td class="name">Paiement</td><td><code>Fedapay</code> — MTN &amp; Moov, <b>compte unique</b></td>
+              <td>Mobile money natif. <b>Pas de split en MVP</b> (voir §04).</td></tr>
+          <tr><td class="name">Email transactionnel</td><td><code>Resend</code> + React Email</td>
+              <td>OTP, confirmations de consultation, reçus PDF. 3 000/mois gratuits.</td></tr>
+          <tr><td class="name">Génération PDF</td><td><code>@react-pdf/renderer</code></td>
+              <td>Moteur JSX pur Node. <b>Aucun Chromium</b> → sous la limite bundle Vercel.</td></tr>
+          <tr><td class="name">Moteur de contenu</td><td>Assemblage déterministe + <b>Claude</b> (rédaction, humain valide)</td>
+              <td>L'IA reformule des faits vérifiés, n'en invente aucun. Divise le temps de contenu.</td></tr>
+          <tr><td class="name">UI</td><td>Tailwind + shadcn/ui</td>
+              <td>Design system rapide, cohérent, accessible.</td></tr>
+          <tr><td class="name">Mesure &amp; erreurs</td><td>Plausible · Vercel Analytics · Sentry</td>
+              <td>Funnel de partage instrumenté, privacy-friendly, monitoring gratuit.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> Plan de Parcours — l'approche tranchée</h2>
+    <p class="lead">Un seul objet de données assemblé une fois, rendu de deux façons. L'infographie gratuite est
+       du HTML (instantané, partageable). Le PDF payant passe par react-pdf, jamais par un navigateur headless.</p>
+    <div class="lanes">
+      <div class="lane free">
+        <div class="price">GRATUIT · accroche de masse</div>
+        <h3>Infographie inline « 2 pages »</h3>
+        <ul>
+          <li>React Server Component, HTML/Tailwind</li>
+          <li>Rendu instantané, léger sur 4G</li>
+          <li>Top 3 filières + score expliqué, écoles, bourses, calendrier</li>
+          <li>Partageable par capture / carte Open Graph</li>
+        </ul>
+      </div>
+      <div class="lane paid">
+        <div class="price">200 F · signal de valeur</div>
+        <h3>PDF documenté 10-12 pages</h3>
+        <ul>
+          <li><code>@react-pdf/renderer</code> dans un route handler Node</li>
+          <li>Curriculum détaillé, comparatif écoles, témoignages, sources</li>
+          <li>Généré à la volée puis <b>caché dans Supabase Storage</b></li>
+          <li>Servi via URL signée après paiement (HTTP 402 sinon)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="flow">
+      Profilage B1 → <b>assemblerPlan()</b> → objet PlanParcours → <b>InfographieParcours</b> (gratuit)
+      &nbsp;│&nbsp; paiement 200 F → <b>renderToBuffer(PlanParcoursPDF)</b> → Storage → URL signée
+    </div>
+    <p class="lead" style="margin-top:1rem; font-size:.88rem;">
+      <b>Pourquoi pas Puppeteer.</b> Le binaire Chromium (~300 Mo) dépasse la limite de bundle Vercel (250 Mo)
+      et le serverless n'autorise pas de sous-processus. react-pdf élimine cette classe entière de problèmes.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span> Arbitrages de périmètre — le « MVP dans le MVP »</h2>
+    <p class="lead">Les 9 briques ne sont pas toutes nécessaires au soft-launch. On coupe ~80h pour rendre la
+       marge du planning au vert, sans toucher à la valeur perçue par le bachelier.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Brique</th><th>Décision</th><th>Arbitrage</th></tr></thead>
+        <tbody>
+          <tr><td class="name">B1 Profiler · B2 Parcours · B3 Plan</td><td><span class="tag t-keep">CŒUR</span></td>
+              <td>La valeur bachelier. À soigner — c'est le différenciateur.</td></tr>
+          <tr><td class="name">B4 Écoles · B5 Bourses</td><td><span class="tag t-keep">CŒUR</span></td>
+              <td>Catalogue + matching simple. Nécessaires au Plan.</td></tr>
+          <tr><td class="name">B6 Réservation consultation</td><td><span class="tag t-reduce">RÉDUIRE</span></td>
+              <td>Un seul consultant → créneaux fixes + paiement, pas un moteur de dispo complet.</td></tr>
+          <tr><td class="name">B7 Dashboard École</td><td><span class="tag t-reduce">REPORTER</span></td>
+              <td>5-8 écoles → rapport hebdo automatisé (email/PDF). Vrai dashboard = Phase 2. <b>~35h</b></td></tr>
+          <tr><td class="name">B8 Dashboard Consultant</td><td><span class="tag t-cut">MINIMISER</span></td>
+              <td>Le consultant est co-fondateur → il a l'admin B9. Profil public suffit. <b>~25h</b></td></tr>
+          <tr><td class="name">B9 Admin + split paiement</td><td><span class="tag t-reduce">RÉDUIRE</span></td>
+              <td>Fedapay <b>sans split</b>, reporting simple, réconciliation comptable. <b>~20h</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span> Les 3 côtés &amp; leur isolation (RLS)</h2>
+    <p class="lead">Sécurité multi-tenant posée <em>dès</em> le schéma, pas après. Deny-by-default, puis ouverture
+       au strict via des policies Postgres et des helpers <span class="mono">security definer</span>.</p>
+    <div class="sides">
+      <div class="side">
+        <h3>Bacheliers <span class="role">gratuit</span></h3>
+        <p>Profilage, infographie, consultation N1 gratuite. Paient PDF (200 F) et consultations.</p>
+        <div class="rls">RLS : ne voit que <b>ses</b> profils, plans, paiements, réservations.</div>
+      </div>
+      <div class="side">
+        <h3>Écoles <span class="role">CPA B2B</span></h3>
+        <p>Publiques gratuites au catalogue. Privées partenaires : commission à l'inscription effective.</p>
+        <div class="rls">RLS : <b>is_ecole_member()</b> → ne voit que les candidatures de son école.</div>
+      </div>
+      <div class="side">
+        <h3>Consultants <span class="role">20 % / 80 %</span></h3>
+        <p>En MVP : le co-fondateur seul. Profil public si vérifié, calendrier, revenus.</p>
+        <div class="rls">RLS : ne voit que <b>ses</b> créneaux et consultations.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span> À dérisquer avant de coder le produit</h2>
+    <div class="panel">
+      <ul class="checklist">
+        <li data-n="1"><b>POC PDF</b> (1-2 j) — valider react-pdf sur un parcours réel, polices locales, rendu Storage.</li>
+        <li data-n="2"><b>Fedapay</b> — confirmer flux mobile money + webhook de confirmation (le split est Phase 2, hors sujet MVP).</li>
+        <li data-n="3"><b>Moteur de contenu</b> — prototyper l'assemblage assisté IA sur <em>un</em> parcours avant d'en produire 8 à la main.</li>
+        <li data-n="4"><b>Arbitrage calendrier</b> — confirmer que le build a démarré ; sinon assumer la fenêtre juillet-août 2027 plutôt qu'un janvier 2027 dégradé.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="doc">
+    <span>ORIENTAFRIK · Note d'architecture MVP · révision technique</span>
+    <span>Diffusion restreinte — usage interne</span>
+  </footer>
+</div>
