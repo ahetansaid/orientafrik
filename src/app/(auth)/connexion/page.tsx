@@ -2,6 +2,7 @@
 import { useActionState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Mail } from 'lucide-react';
 import { demanderOtp } from '@/features/compte/actions/connexion';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -24,6 +25,9 @@ export default function ConnexionPage() {
   return (
     <div className="space-y-4">
       <div>
+        <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy/5 text-navy">
+          <Mail className="h-5 w-5" />
+        </span>
         <h1 className="text-lg font-bold text-navy">Connexion</h1>
         <p className="mt-1 text-sm text-slate-500">
           Reçois un code à 6 chiffres par email. Pas de mot de passe.

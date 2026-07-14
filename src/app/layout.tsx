@@ -4,6 +4,7 @@ import { getLocale, getMessages } from 'next-intl/server';
 import { Analytics } from '@vercel/analytics/next';
 import { PlausibleScript } from '@/lib/analytics/plausible';
 import { ServiceWorkerRegister } from '@/shared/ui/ServiceWorkerRegister';
+import { InstallPrompt } from '@/shared/ui/InstallPrompt';
 import { MARQUE, SLOGAN } from '@/shared/lib/constants';
 import './globals.css';
 
@@ -34,6 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
         </NextIntlClientProvider>
         <ServiceWorkerRegister />
+        <InstallPrompt />
         <Analytics />
       </body>
     </html>
