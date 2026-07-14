@@ -2,8 +2,8 @@
 // Stratégie : network-first pour la navigation (contenu frais, fallback cache),
 // cache-first pour les assets statiques Next. Volontairement conservateur pour
 // éviter de servir des données périmées (l'app est surtout dynamique/RSC).
-const CACHE = 'orientafrik-v1';
-const SHELL = ['/', '/connexion', '/manifest.webmanifest', '/icon.svg'];
+const CACHE = 'orientafrik-v2';
+const SHELL = ['/', '/offline', '/connexion', '/manifest.webmanifest', '/icon.svg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {}));
@@ -30,7 +30,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
           return res;
         })
-        .catch(() => caches.match(request).then((r) => r || caches.match('/'))),
+        .catch(() => caches.match(request).then((r) => r || caches.match('/offline') || caches.match('/'))),
     );
     return;
   }

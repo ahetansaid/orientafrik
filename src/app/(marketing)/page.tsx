@@ -9,6 +9,8 @@ import {
   School,
   Users,
   Check,
+  Quote,
+  Plus,
 } from 'lucide-react';
 import { Reveal, RevealGroup, RevealItem } from '@/shared/ui/motion/Reveal';
 import { SLOGAN, TARIF_PDF_FCFA } from '@/shared/lib/constants';
@@ -230,6 +232,105 @@ export default function LandingPage() {
             ))}
           </div>
         </Reveal>
+      </section>
+
+      {/* ---------- TÉMOIGNAGES ---------- */}
+      <section className="bg-slate-50/60 py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold text-navy sm:text-4xl">Ils y voient plus clair</h2>
+            <p className="mt-3 text-slate-600">
+              Des bacheliers qui ont transformé le doute en plan d’action.
+            </p>
+          </Reveal>
+
+          <RevealGroup className="mt-14 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                texte:
+                  'Je ne savais pas quoi faire après mon bac D. En 5 minutes, j’avais 3 pistes claires et les écoles pour chacune.',
+                nom: 'Aïcha',
+                role: 'Bac D · Cotonou',
+              },
+              {
+                texte:
+                  'Le PDF détaillé m’a servi à convaincre mes parents. Tout était expliqué, chiffré, sourcé.',
+                nom: 'Kevin',
+                role: 'Bac C · Porto-Novo',
+              },
+              {
+                texte:
+                  'La consultation a fait la différence : j’ai visé une bourse à laquelle je n’aurais jamais pensé.',
+                nom: 'Fatima',
+                role: 'Bac G · Parakou',
+              },
+            ].map((t) => (
+              <RevealItem key={t.nom}>
+                <figure className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <Quote className="h-7 w-7 text-gold/70" />
+                  <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-slate-700">
+                    « {t.texte} »
+                  </blockquote>
+                  <figcaption className="mt-5 flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
+                      {t.nom.charAt(0)}
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold text-navy">{t.nom}</span>
+                      <span className="block text-xs text-slate-500">{t.role}</span>
+                    </span>
+                  </figcaption>
+                </figure>
+              </RevealItem>
+            ))}
+          </RevealGroup>
+          <Reveal delay={0.1}>
+            <p className="mt-6 text-center text-xs text-slate-400">
+              Témoignages illustratifs — remplacés par de vrais retours au lancement.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ---------- FAQ ---------- */}
+      <section className="mx-auto max-w-3xl px-4 py-20">
+        <Reveal className="text-center">
+          <h2 className="text-3xl font-bold text-navy sm:text-4xl">Questions fréquentes</h2>
+        </Reveal>
+        <RevealGroup className="mt-10 space-y-3">
+          {[
+            {
+              q: 'Est-ce vraiment gratuit ?',
+              r: 'Oui. Ton profil, ton Plan de Parcours et son infographie sont gratuits. Seuls le PDF détaillé (200 F) et les consultations sont payants.',
+            },
+            {
+              q: 'Comment sont choisies mes filières ?',
+              r: 'Un moteur transparent croise ta série, ta moyenne, tes centres d’intérêt et ton budget. Chaque recommandation est expliquée — jamais une boîte noire.',
+            },
+            {
+              q: 'Mes données sont-elles partagées ?',
+              r: 'Non. Quand tu partages ton plan, seuls ton prénom, tes 3 pistes et leurs scores sont visibles. Jamais ton email, ta moyenne ou ton nom complet.',
+            },
+            {
+              q: 'Comment se passe le paiement ?',
+              r: 'Par mobile money (MTN / Moov) via Fedapay. Le PDF se débloque dès la confirmation du paiement.',
+            },
+            {
+              q: 'Je suis une école ou un consultant, comment m’inscrire ?',
+              r: 'Ces accès sont activés par notre équipe (anti-fraude). Crée un compte, puis contacte-nous pour être rattaché à ton établissement.',
+            },
+          ].map((f) => (
+            <RevealItem key={f.q}>
+              <details className="group rounded-2xl border border-slate-200 bg-white p-5 transition open:shadow-md">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-navy">
+                  {f.q}
+                  <Plus className="h-5 w-5 shrink-0 text-gold transition-transform group-open:rotate-45" />
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">{f.r}</p>
+              </details>
+            </RevealItem>
+          ))}
+        </RevealGroup>
       </section>
 
       {/* ---------- CTA FINAL ---------- */}
