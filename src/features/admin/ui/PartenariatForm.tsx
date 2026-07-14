@@ -4,7 +4,7 @@ import { configurerPartenariat } from '@/features/admin/actions/contenu';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
 import type { ActionResult } from '@/shared/lib/result';
-import type { PartenariatStatut } from '@/lib/supabase/types';
+import type { PartenariatStatut } from '@/lib/supabase/enums';
 
 export interface PartenariatDefaults {
   ecoleId: string;

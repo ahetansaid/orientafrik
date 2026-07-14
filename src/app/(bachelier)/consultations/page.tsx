@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { listPourBachelier } from '@/features/consultant/data/consultations.repo';
 import { fcfa, dateBenin } from '@/shared/lib/format';
-import type { ConsultationStatut } from '@/lib/supabase/types';
+import type { ConsultationStatut } from '@/lib/supabase/enums';
 
 export const metadata: Metadata = { title: 'Mes consultations' };
 

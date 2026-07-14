@@ -1,7 +1,8 @@
 import 'server-only';
 import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
-import type { Database, UserRole } from '@/lib/supabase/types';
+import type { Database } from '@/lib/supabase/types';
+import type { UserRole } from '@/lib/supabase/enums';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 

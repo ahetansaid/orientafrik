@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { listPaiements } from '@/features/admin/data/admin.repo';
 import { fcfa, dateBenin } from '@/shared/lib/format';
-import type { PaymentStatut } from '@/lib/supabase/types';
+import type { PaymentStatut } from '@/lib/supabase/enums';
 
 export const metadata: Metadata = { title: 'Admin — paiements' };
 

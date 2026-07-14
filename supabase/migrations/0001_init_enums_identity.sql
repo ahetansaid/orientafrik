@@ -46,10 +46,8 @@ create or replace function is_admin() returns boolean
   select coalesce((select role = 'admin' from profiles where id = auth.uid()), false);
 $$;
 
-create or replace function is_ecole_member(_ecole uuid) returns boolean
-  language sql stable security definer set search_path = public as $$
-  select exists (select 1 from ecole_membres where ecole_id = _ecole and user_id = auth.uid());
-$$;
+-- NB : is_ecole_member() est défini en 0002, après la création de ecole_membres
+-- (Postgres valide le corps des fonctions à la création : pas de référence en avant).
 
 -- Création auto du profil à l'inscription (trigger sur auth.users)
 create or replace function handle_new_user() returns trigger

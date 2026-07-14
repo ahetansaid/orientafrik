@@ -1,4 +1,4 @@
-import type { InscriptionStatut } from '@/lib/supabase/types';
+import type { InscriptionStatut } from '@/lib/supabase/enums';
 
 // Funnel CPA (Coût Par Acquisition) : orientee -> candidature -> inscrite.
 // `annulee` est un état terminal atteignable depuis les états non finaux.

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { promouvoirRole, rattacherEcole } from '@/features/admin/actions/provisioning';
-import type { UserRole } from '@/lib/supabase/types';
+import type { UserRole } from '@/lib/supabase/enums';
 
 export interface EcoleOption {
   id: string;

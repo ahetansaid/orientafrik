@@ -4,7 +4,7 @@ import { assertRole } from '@/lib/auth/guards';
 import { listPourConsultant } from '@/features/consultant/data/consultations.repo';
 import { ConsultationActions } from '@/features/consultant/ui/ConsultationActions';
 import { fcfa, dateBenin } from '@/shared/lib/format';
-import type { ConsultationStatut } from '@/lib/supabase/types';
+import type { ConsultationStatut } from '@/lib/supabase/enums';
 
 export const metadata: Metadata = { title: 'Mes consultations' };
 

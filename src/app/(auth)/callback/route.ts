@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { HOME_BY_ROLE } from '@/lib/auth/guards';
-import type { UserRole } from '@/lib/supabase/types';
+import type { UserRole } from '@/lib/supabase/enums';
 
 // Callback du magic link : échange le code contre une session, puis redirige
 // l'utilisateur vers l'accueil de son rôle (ou vers ?next= si fourni et sûr).

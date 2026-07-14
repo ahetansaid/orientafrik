@@ -1,6 +1,7 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database, UserRole, ContenuStatut } from '@/lib/supabase/types';
+import type { Database } from '@/lib/supabase/types';
+import type { UserRole, ContenuStatut } from '@/lib/supabase/enums';
 import { AppError } from '@/shared/lib/errors';
 import type { PartenariatValues } from '@/features/admin/domain/admin.schema';
 

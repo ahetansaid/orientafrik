@@ -1,8 +1,19 @@
+import { cache } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { getPlanPartage } from '@/features/bachelier/data/partage.repo';
+
+// Chargement mis en cache (une seule requête par rendu, partagée metadata + page).
+// notFound() est appelé DÈS generateMetadata pour garantir un vrai 404 avant que
+// le shell HTML ne soit streamé (sinon statut 200 avec contenu 404).
+const chargerPlan = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const plan = await getPlanPartage(supabase, slug);
+  if (!plan) notFound();
+  return plan;
+});
 
 // Page publique NON-PII (prénom + top3 + scores). Aucune auth. C'est la porte de
 // la boucle de croissance : partagée, elle affiche une carte OG personnalisée.
@@ -12,9 +23,7 @@ export async function generateMetadata({
   params: Promise<{ shareSlug: string }>;
 }): Promise<Metadata> {
   const { shareSlug } = await params;
-  const supabase = await createClient();
-  const plan = await getPlanPartage(supabase, shareSlug);
-  if (!plan) return { title: 'Plan de Parcours' };
+  const plan = await chargerPlan(shareSlug);
   return {
     title: `Les 3 pistes de ${plan.prenom}`,
     description: `Découvre le Plan de Parcours de ${plan.prenom} et crée le tien gratuitement.`,
@@ -28,9 +37,7 @@ export default async function PlanPartagePage({
   params: Promise<{ shareSlug: string }>;
 }) {
   const { shareSlug } = await params;
-  const supabase = await createClient();
-  const plan = await getPlanPartage(supabase, shareSlug);
-  if (!plan) notFound();
+  const plan = await chargerPlan(shareSlug);
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">

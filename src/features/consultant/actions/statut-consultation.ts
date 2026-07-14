@@ -6,7 +6,7 @@ import { assertRole } from '@/lib/auth/guards';
 import { ok, fail, type ActionResult } from '@/shared/lib/result';
 import { isAppError } from '@/shared/lib/errors';
 import { majStatut } from '@/features/consultant/data/consultations.repo';
-import type { ConsultationStatut } from '@/lib/supabase/types';
+import type { ConsultationStatut } from '@/lib/supabase/enums';
 
 // Le consultant fait avancer une consultation (terminée / annulée / no-show).
 // La RLS (consult_parties_update) autorise le consultant concerné.

@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
@@ -5,15 +6,22 @@ import { getEcoleParSlug } from '@/features/ecole/data/ecoles.repo';
 import { SOrienterBouton } from '@/features/ecole/ui/SOrienterBouton';
 import { fourchetteFcfa } from '@/shared/lib/format';
 
+// Chargement caché + notFound() dès generateMetadata -> vrai 404 (avant streaming).
+const chargerEcole = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const ecole = await getEcoleParSlug(supabase, slug);
+  if (!ecole || ecole.statut !== 'published') notFound();
+  return ecole;
+});
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
-  const ecole = await getEcoleParSlug(supabase, slug);
-  return { title: ecole?.nom ?? 'École' };
+  const ecole = await chargerEcole(slug);
+  return { title: ecole.nom };
 }
 
 export default async function EcolePubliquePage({
@@ -22,9 +30,7 @@ export default async function EcolePubliquePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const ecole = await getEcoleParSlug(supabase, slug);
-  if (!ecole || ecole.statut !== 'published') notFound();
+  const ecole = await chargerEcole(slug);
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { avancerCandidature } from '@/features/ecole/actions/avancer-candidature';
-import type { InscriptionStatut } from '@/lib/supabase/types';
+import type { InscriptionStatut } from '@/lib/supabase/enums';
 
 // Boutons d'avancement selon l'état courant de la candidature.
 export function CandidatureActions({

@@ -49,6 +49,12 @@ create table ecole_membres (
   primary key (ecole_id, user_id)
 );
 
+-- Helper RLS dépendant de ecole_membres (défini ici, une fois la table créée).
+create or replace function is_ecole_member(_ecole uuid) returns boolean
+  language sql stable security definer set search_path = public as $$
+  select exists (select 1 from ecole_membres where ecole_id = _ecole and user_id = auth.uid());
+$$;
+
 -- B5 — Catalogue Bourses.
 create table bourses (
   id          uuid primary key default gen_random_uuid(),

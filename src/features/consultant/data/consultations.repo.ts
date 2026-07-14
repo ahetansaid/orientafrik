@@ -2,7 +2,7 @@ import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/supabase/types';
 import { AppError } from '@/shared/lib/errors';
-import type { ConsultationStatut } from '@/lib/supabase/types';
+import type { ConsultationStatut } from '@/lib/supabase/enums';
 
 type DB = SupabaseClient<Database>;
 export type ConsultationRow = Database['public']['Tables']['consultations']['Row'];

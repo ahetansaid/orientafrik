@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
-import type { UserRole } from '@/lib/supabase/types';
+import type { UserRole } from '@/lib/supabase/enums';
 
 // Préfixes d'URL protégés -> rôle requis. Premier filtre grossier UNIQUEMENT :
 // la vraie frontière reste assertRole() (serveur) + la RLS Postgres. On ne fait

@@ -1,6 +1,7 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database, InscriptionStatut } from '@/lib/supabase/types';
+import type { Database } from '@/lib/supabase/types';
+import type { InscriptionStatut } from '@/lib/supabase/enums';
 import { AppError } from '@/shared/lib/errors';
 
 type DB = SupabaseClient<Database>;

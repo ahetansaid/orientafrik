@@ -1,30 +1,32 @@
 # Configuration Supabase CLI (dev local). Voir https://supabase.com/docs/guides/cli/config
 project_id = "orientafrik"
 
+# NB : ports en 553xx pour éviter les plages réservées par WinNAT/Hyper-V
+# sur cette machine Windows (54316–54815 exclus).
 [api]
 enabled = true
-port = 54321
+port = 55321
 schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 54322
-shadow_port = 54320
+port = 55322
+shadow_port = 55320
 major_version = 15
 
 [db.pooler]
 enabled = false
-port = 54329
+port = 55329
 pool_mode = "transaction"
 
 [studio]
 enabled = true
-port = 54323
+port = 55323
 
 [inbucket]
 enabled = true
-port = 54324
+port = 55324
 
 [storage]
 enabled = true

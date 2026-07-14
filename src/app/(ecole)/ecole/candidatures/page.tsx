@@ -5,7 +5,7 @@ import { getEcoleIdPourUser } from '@/features/ecole/data/membres.repo';
 import { listPourEcole } from '@/features/ecole/data/inscriptions.repo';
 import { CandidatureActions } from '@/features/ecole/ui/CandidatureActions';
 import { fcfa, dateBenin } from '@/shared/lib/format';
-import type { InscriptionStatut } from '@/lib/supabase/types';
+import type { InscriptionStatut } from '@/lib/supabase/enums';
 
 export const metadata: Metadata = { title: 'Candidatures' };
 
