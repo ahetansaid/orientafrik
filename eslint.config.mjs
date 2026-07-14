@@ -5,7 +5,14 @@ import nextTypescript from 'eslint-config-next/typescript';
 // sans FlatCompat (qui plantait avec eslintrc 3.x + eslint 9.39).
 const eslintConfig = [
   {
-    ignores: ['.next/**', 'node_modules/**', 'src/lib/supabase/types.ts', 'next-env.d.ts'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'src/lib/supabase/types.ts',
+      'next-env.d.ts',
+      // Specs Playwright : lint dédié via Playwright, hors règles applicatives Next.
+      'tests/e2e/**',
+    ],
   },
   ...nextCoreWebVitals,
   ...nextTypescript,
