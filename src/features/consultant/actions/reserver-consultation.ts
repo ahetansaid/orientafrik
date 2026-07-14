@@ -52,7 +52,9 @@ export async function reserverConsultation(
     );
     const gratuite = prixFcfa === 0;
 
-    const consultationId = await insererConsultation(supabase, {
+    // Insertion via service_role : le prix/commission/statut sont calculés serveur
+    // et ne doivent pas être falsifiables par le client (cf. durcissement 0011).
+    const consultationId = await insererConsultation(service, {
       bachelierId: user.id,
       consultantId: parsed.data.consultantId,
       typeId: parsed.data.typeId,

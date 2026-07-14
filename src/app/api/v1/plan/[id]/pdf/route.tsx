@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/service';
 import { PlanParcoursPDF } from '@/features/bachelier/pdf/PlanParcoursPDF';
 import type { PlanParcours } from '@/features/bachelier/domain/plan-parcours';
 
@@ -31,9 +32,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Paiement requis (200 F)' }, { status: 402 }); // Payment Required
   }
 
+  // Écritures de cache (Storage + pdf_url) : via service_role. Le propriétaire
+  // n'a PAS le droit d'écrire pdf_url (colonne sensible, cf. 0011) — c'est une
+  // opération serveur de confiance déclenchée après vérification du paiement.
+  const service = createServiceClient();
+
   // 3. Cache : si déjà généré, on renvoie l'URL signée (pas de re-génération).
   if (plan.pdf_url) {
-    const { data: signed } = await supabase.storage
+    const { data: signed } = await service.storage
       .from('plans-pdf').createSignedUrl(plan.pdf_url, 60 * 60);
     if (signed?.signedUrl) return NextResponse.redirect(signed.signedUrl);
   }
@@ -44,10 +50,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   // 5. Persistance dans Storage + mémorisation de l'URL pour les prochains appels.
   const path = `${plan.bachelier_id}/${plan.id}.pdf`;
-  await supabase.storage.from('plans-pdf').upload(path, buffer, {
+  await service.storage.from('plans-pdf').upload(path, buffer, {
     contentType: 'application/pdf', upsert: true,
   });
-  await supabase.from('plans_parcours').update({ pdf_url: path }).eq('id', plan.id);
+  await service.from('plans_parcours').update({ pdf_url: path }).eq('id', plan.id);
 
   // Buffer (Node) -> Uint8Array : type de corps accepté par la Web Response.
   return new NextResponse(new Uint8Array(buffer), {
