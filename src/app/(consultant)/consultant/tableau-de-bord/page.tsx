@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
+import { Wallet, CalendarCheck, Clock } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { listPourConsultant } from '@/features/consultant/data/consultations.repo';
 import { fcfa } from '@/shared/lib/format';
+import { StatCard } from '@/shared/ui/StatCard';
+import { Reveal, RevealGroup, RevealItem } from '@/shared/ui/motion/Reveal';
 
 export const metadata: Metadata = { title: 'Tableau de bord consultant' };
 
@@ -17,21 +20,21 @@ export default async function DashboardConsultant() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-navy">Tableau de bord</h1>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label="Revenu net (confirmé)" value={fcfa(netTotal)} />
-        <Stat label="Consultations confirmées" value={String(encaisses.length)} />
-        <Stat label="En attente de paiement" value={String(enAttente)} />
-      </div>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-navy">{value}</p>
+      <Reveal>
+        <h1 className="text-2xl font-bold text-navy">Tableau de bord</h1>
+        <p className="mt-1 text-sm text-slate-500">Ton activité en un coup d’œil.</p>
+      </Reveal>
+      <RevealGroup className="grid gap-4 sm:grid-cols-3">
+        <RevealItem>
+          <StatCard label="Revenu net (confirmé)" value={fcfa(netTotal)} icon={Wallet} tone="emerald" />
+        </RevealItem>
+        <RevealItem>
+          <StatCard label="Consultations confirmées" value={String(encaisses.length)} icon={CalendarCheck} />
+        </RevealItem>
+        <RevealItem>
+          <StatCard label="En attente de paiement" value={String(enAttente)} icon={Clock} tone="amber" />
+        </RevealItem>
+      </RevealGroup>
     </div>
   );
 }
