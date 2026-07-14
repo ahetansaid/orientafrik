@@ -14,9 +14,40 @@
 
 html {
   -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
 }
 
 body {
   background-color: #f7f8fb;
   color: #131b30;
+}
+
+/* Dégradés d'accent (texte & blobs de fond) — esthétique moderne Framer/Notion. */
+.text-gradient {
+  background: linear-gradient(100deg, #12224a 0%, #2d4a8a 55%, #b8860b 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(24px, -32px) scale(1.08); }
+  66% { transform: translate(-20px, 18px) scale(0.96); }
+}
+.animate-blob {
+  animation: blob 16s ease-in-out infinite;
+}
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float {
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob, .animate-float { animation: none; }
+  html { scroll-behavior: auto; }
 }

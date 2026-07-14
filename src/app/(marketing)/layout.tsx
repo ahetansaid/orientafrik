@@ -1,21 +1,23 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { MARQUE } from '@/shared/lib/constants';
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
-      <header className="border-b border-slate-200 bg-white">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-navy">
+      <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-md">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <Link href="/" className="flex items-center gap-2 text-lg font-bold text-navy">
+            <Image src="/icon.svg" alt="" width={28} height={28} className="rounded-lg" />
             {MARQUE}
           </Link>
-          <div className="flex items-center gap-4 text-sm">
-            <Link href="/bourses" className="text-slate-600 hover:text-navy">
+          <div className="flex items-center gap-1 text-sm sm:gap-4">
+            <Link href="/bourses" className="rounded-lg px-3 py-1.5 text-slate-600 hover:text-navy">
               Bourses
             </Link>
             <Link
               href="/connexion"
-              className="rounded-lg bg-navy px-3 py-1.5 font-medium text-white hover:bg-navy/90"
+              className="rounded-lg bg-navy px-4 py-2 font-medium text-white transition hover:bg-navy/90"
             >
               Se connecter
             </Link>

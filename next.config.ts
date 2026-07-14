@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       // Supabase Storage (logos écoles, assets). Domaine injecté à l'exécution via env.
       { protocol: 'https', hostname: '*.supabase.co' },
+      // Visuels Pexels (landing marketing).
+      { protocol: 'https', hostname: 'images.pexels.com' },
     ],
   },
   // typedRoutes : à réactiver quand toutes les routes des 4 côtés existeront
