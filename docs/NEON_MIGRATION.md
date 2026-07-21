@@ -65,6 +65,17 @@ BLOB_READ_WRITE_TOKEN=...                          # Vercel Blob
    mise à jour README/DEPLOYMENT.
 7. **Déploiement** : Neon (branche prod) + `drizzle-kit push`, Stack Auth project, Vercel Blob, Vercel.
 
+## Dev local — bug Turbopack sur la route auth catch-all
+`npm run dev` (Turbopack) peut renvoyer **500** sur `/api/auth/[...all]` — bug connu Turbopack
+(manifest `[__metadata_id__]` en conflit avec les routes metadata). **La production n'est pas
+affectée** (`next build` + `next start`, et Vercel, fonctionnent). Contournement local : tester
+l'auth via `npm run build && npm run start`, ou supprimer `.next` et relancer.
+
+## Smoke test (validé contre Neon, en prod)
+Auth OTP (send/verify/session), `/profil` authentifié (200), `/plan/[id]` propriétaire (200) vs
+sans session (307), partage `/p/[slug]` non-PII (200, aucune fuite email/moyenne), lectures Drizzle
+dans les pages. Tout passe.
+
 ## État actuel — migration TERMINÉE (branche `migration/neon`)
 
 Phases 1→6 faites et vérifiées : `typecheck` 0, `eslint` 0, 27 tests unitaires, `next build` OK.
