@@ -65,7 +65,9 @@ BLOB_READ_WRITE_TOKEN=...                          # Vercel Blob
    mise à jour README/DEPLOYMENT.
 7. **Déploiement** : Neon (branche prod) + `drizzle-kit push`, Stack Auth project, Vercel Blob, Vercel.
 
-## État actuel
+## État actuel — migration TERMINÉE (branche `migration/neon`)
 
-Phase 1 en cours. Le reste de l'app tourne encore sur Supabase pendant la bascule
-(coexistence temporaire des deux stacks pour garder la branche buildable).
+Phases 1→6 faites et vérifiées : `typecheck` 0, `eslint` 0, 27 tests unitaires, `next build` OK.
+Auth OTP testée en réel contre Neon. Supabase entièrement retiré (`@supabase/*`, `lib/supabase/`,
+dossier `supabase/`). Reste avant merge sur `main` : E2E Playwright à réécrire pour la nouvelle stack,
+`BLOB_READ_WRITE_TOKEN` + clés Fedapay pour le run paiement complet, puis déploiement (voir DEPLOYMENT.md).
