@@ -1,9 +1,9 @@
 import { cache } from 'react';
+import { db } from '@/lib/db';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArrowRight } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
 import { getPlanPartage } from '@/features/bachelier/data/partage.repo';
 import { Reveal, RevealGroup, RevealItem } from '@/shared/ui/motion/Reveal';
 
@@ -11,8 +11,7 @@ import { Reveal, RevealGroup, RevealItem } from '@/shared/ui/motion/Reveal';
 // notFound() est appelé DÈS generateMetadata pour garantir un vrai 404 avant que
 // le shell HTML ne soit streamé (sinon statut 200 avec contenu 404).
 const chargerPlan = cache(async (slug: string) => {
-  const supabase = await createClient();
-  const plan = await getPlanPartage(supabase, slug);
+  const plan = await getPlanPartage(db, slug);
   if (!plan) notFound();
   return plan;
 });

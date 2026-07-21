@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
+import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { createServiceClient } from '@/lib/supabase/service';
 import { assertRole } from '@/lib/auth/guards';
 import { ok, fail, type ActionResult } from '@/shared/lib/result';
 import { isAppError } from '@/shared/lib/errors';
@@ -15,8 +15,7 @@ export async function changerStatutContenu(input: unknown): Promise<ActionResult
 
   try {
     await assertRole('admin');
-    const supabase = createServiceClient();
-    await publierContenu(supabase, parsed.data.type, parsed.data.id, parsed.data.statut);
+    await publierContenu(db, parsed.data.type, parsed.data.id, parsed.data.statut);
     revalidatePath('/admin/contenu');
     return ok(undefined);
   } catch (e) {
@@ -40,8 +39,7 @@ export async function configurerPartenariat(
 
   try {
     await assertRole('admin');
-    const supabase = createServiceClient();
-    await majPartenariat(supabase, parsed.data);
+    await majPartenariat(db, parsed.data);
     revalidatePath('/admin/partenariats');
     return ok(undefined);
   } catch (e) {

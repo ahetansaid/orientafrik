@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { listPaiements } from '@/features/admin/data/admin.repo';
 import { fcfa, dateBenin } from '@/shared/lib/format';
-import type { PaymentStatut } from '@/lib/supabase/enums';
+import type { PaymentStatut } from '@/lib/db/enums';
 
 export const metadata: Metadata = { title: 'Admin — paiements' };
 
@@ -16,8 +16,7 @@ const TON: Record<PaymentStatut, string> = {
 
 export default async function PaiementsPage() {
   await assertRole('admin');
-  const supabase = await createClient();
-  const paiements = await listPaiements(supabase);
+  const paiements = await listPaiements(db);
 
   return (
     <div className="space-y-6">
@@ -46,9 +45,9 @@ export default async function PaiementsPage() {
             ) : (
               paiements.map((p) => (
                 <tr key={p.id}>
-                  <td className="px-4 py-3 text-slate-500">{dateBenin(p.created_at)}</td>
+                  <td className="px-4 py-3 text-slate-500">{dateBenin(p.createdAt)}</td>
                   <td className="px-4 py-3">{p.purpose}</td>
-                  <td className="px-4 py-3 font-medium tabular-nums">{fcfa(p.amount_fcfa)}</td>
+                  <td className="px-4 py-3 font-medium tabular-nums">{fcfa(p.amountFcfa)}</td>
                   <td className={`px-4 py-3 font-medium ${TON[p.statut]}`}>{p.statut}</td>
                 </tr>
               ))

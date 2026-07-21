@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { getEcoleIdPourUser } from '@/features/ecole/data/membres.repo';
 import { getEcole } from '@/features/ecole/data/ecoles.repo';
@@ -9,9 +9,8 @@ export const metadata: Metadata = { title: 'Ma fiche école' };
 
 export default async function FichePage() {
   const profil = await assertRole('ecole');
-  const supabase = await createClient();
-  const ecoleId = await getEcoleIdPourUser(supabase, profil.id);
-  const ecole = ecoleId ? await getEcole(supabase, ecoleId) : null;
+  const ecoleId = await getEcoleIdPourUser(db, profil.id);
+  const ecole = ecoleId ? await getEcole(db, ecoleId) : null;
 
   if (!ecole) {
     return (
@@ -29,8 +28,8 @@ export default async function FichePage() {
           nom: ecole.nom,
           ville: ecole.ville ?? '',
           description: ecole.description ?? '',
-          fraisMinFcfa: ecole.frais_min_fcfa,
-          fraisMaxFcfa: ecole.frais_max_fcfa,
+          fraisMinFcfa: ecole.fraisMinFcfa,
+          fraisMaxFcfa: ecole.fraisMaxFcfa,
         }}
       />
     </div>

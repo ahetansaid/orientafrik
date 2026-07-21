@@ -1,25 +1,21 @@
 import 'server-only';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/types';
-import { AppError } from '@/shared/lib/errors';
-import type { ConsultationStatut } from '@/lib/supabase/enums';
+import { eq, desc, asc } from 'drizzle-orm';
+import type { DB } from '@/lib/db';
+import { consultations, consultationTypes } from '@/lib/db/schema';
+import type { ConsultationStatut } from '@/lib/db/enums';
 
-type DB = SupabaseClient<Database>;
-export type ConsultationRow = Database['public']['Tables']['consultations']['Row'];
-export type ConsultationTypeRow = Database['public']['Tables']['consultation_types']['Row'];
+export type ConsultationRow = typeof consultations.$inferSelect;
+export type ConsultationTypeRow = typeof consultationTypes.$inferSelect;
 
 export async function listTypes(db: DB): Promise<ConsultationTypeRow[]> {
-  const { data, error } = await db
-    .from('consultation_types')
-    .select('*')
-    .order('tarif_fcfa', { ascending: true });
-  if (error) throw new AppError('externe', 'Lecture des types de consultation impossible.', error);
-  return data ?? [];
+  return db.select().from(consultationTypes).orderBy(asc(consultationTypes.tarifFcfa));
 }
 
 export async function getType(db: DB, typeId: string): Promise<ConsultationTypeRow | null> {
-  const { data } = await db.from('consultation_types').select('*').eq('id', typeId).maybeSingle();
-  return data ?? null;
+  const row = await db.query.consultationTypes.findFirst({
+    where: eq(consultationTypes.id, typeId),
+  });
+  return row ?? null;
 }
 
 export async function insererConsultation(
@@ -36,50 +32,39 @@ export async function insererConsultation(
     scheduledAt: string | null;
   },
 ): Promise<string> {
-  const { data, error } = await db
-    .from('consultations')
-    .insert({
-      bachelier_id: args.bachelierId,
-      consultant_id: args.consultantId,
-      type_id: args.typeId,
-      slot_id: args.slotId,
+  const [row] = await db
+    .insert(consultations)
+    .values({
+      bachelierId: args.bachelierId,
+      consultantId: args.consultantId,
+      typeId: args.typeId,
+      slotId: args.slotId,
       statut: args.statut,
-      prix_fcfa: args.prixFcfa,
-      commission_fcfa: args.commissionFcfa,
-      net_consultant_fcfa: args.netConsultantFcfa,
-      scheduled_at: args.scheduledAt,
+      prixFcfa: args.prixFcfa,
+      commissionFcfa: args.commissionFcfa,
+      netConsultantFcfa: args.netConsultantFcfa,
+      scheduledAt: args.scheduledAt ? new Date(args.scheduledAt) : null,
     })
-    .select('id')
-    .single();
-  if (error || !data) throw new AppError('externe', 'Création de la consultation impossible.', error);
-  return data.id;
+    .returning({ id: consultations.id });
+  return row!.id;
 }
 
-export async function majStatut(
-  db: DB,
-  id: string,
-  statut: ConsultationStatut,
-): Promise<void> {
-  const { error } = await db.from('consultations').update({ statut }).eq('id', id);
-  if (error) throw new AppError('externe', 'Mise à jour de la consultation impossible.', error);
+export async function majStatut(db: DB, id: string, statut: ConsultationStatut): Promise<void> {
+  await db.update(consultations).set({ statut }).where(eq(consultations.id, id));
 }
 
 export async function listPourConsultant(db: DB, consultantId: string): Promise<ConsultationRow[]> {
-  const { data, error } = await db
-    .from('consultations')
-    .select('*')
-    .eq('consultant_id', consultantId)
-    .order('created_at', { ascending: false });
-  if (error) throw new AppError('externe', 'Lecture des consultations impossible.', error);
-  return data ?? [];
+  return db
+    .select()
+    .from(consultations)
+    .where(eq(consultations.consultantId, consultantId))
+    .orderBy(desc(consultations.createdAt));
 }
 
 export async function listPourBachelier(db: DB, bachelierId: string): Promise<ConsultationRow[]> {
-  const { data, error } = await db
-    .from('consultations')
-    .select('*')
-    .eq('bachelier_id', bachelierId)
-    .order('created_at', { ascending: false });
-  if (error) throw new AppError('externe', 'Lecture des consultations impossible.', error);
-  return data ?? [];
+  return db
+    .select()
+    .from(consultations)
+    .where(eq(consultations.bachelierId, bachelierId))
+    .orderBy(desc(consultations.createdAt));
 }

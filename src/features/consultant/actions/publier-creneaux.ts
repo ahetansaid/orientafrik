@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
+import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { ok, fail, type ActionResult } from '@/shared/lib/result';
 import { isAppError } from '@/shared/lib/errors';
@@ -24,8 +24,7 @@ export async function publierCreneau(
 
   try {
     const profil = await assertRole('consultant');
-    const supabase = await createClient();
-    await insererCreneaux(supabase, profil.id, [parsed.data]);
+    await insererCreneaux(db, profil.id, [parsed.data]);
     revalidatePath('/consultant/disponibilites');
     return ok(undefined);
   } catch (e) {

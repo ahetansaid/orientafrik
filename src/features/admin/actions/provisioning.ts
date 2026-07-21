@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
+import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { createServiceClient } from '@/lib/supabase/service';
 import { assertRole } from '@/lib/auth/guards';
 import { ok, fail, type ActionResult } from '@/shared/lib/result';
 import { isAppError } from '@/shared/lib/errors';
@@ -20,10 +20,9 @@ export async function promouvoirRole(input: unknown): Promise<ActionResult> {
 
   try {
     await assertRole('admin');
-    const supabase = createServiceClient();
-    await definirRole(supabase, parsed.data.userId, parsed.data.role);
+    await definirRole(db, parsed.data.userId, parsed.data.role);
     if (parsed.data.role === 'consultant') {
-      await creerConsultantSiAbsent(supabase, parsed.data.userId);
+      await creerConsultantSiAbsent(db, parsed.data.userId);
     }
     revalidatePath('/admin/roles');
     return ok(undefined);
@@ -40,9 +39,8 @@ export async function rattacherEcole(input: unknown): Promise<ActionResult> {
 
   try {
     await assertRole('admin');
-    const supabase = createServiceClient();
-    await definirRole(supabase, parsed.data.userId, 'ecole');
-    await rattacherMembre(supabase, parsed.data.ecoleId, parsed.data.userId, parsed.data.roleEcole);
+    await definirRole(db, parsed.data.userId, 'ecole');
+    await rattacherMembre(db, parsed.data.ecoleId, parsed.data.userId, parsed.data.roleEcole);
     revalidatePath('/admin/roles');
     return ok(undefined);
   } catch (e) {

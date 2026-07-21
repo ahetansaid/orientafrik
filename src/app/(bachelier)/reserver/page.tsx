@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { listConsultantsVerifies } from '@/features/consultant/data/consultants.repo';
 import { listTypes } from '@/features/consultant/data/consultations.repo';
@@ -14,17 +14,15 @@ export const metadata: Metadata = { title: 'Réserver une consultation' };
 
 export default async function ReserverPage() {
   await assertRole('bachelier');
-  const supabase = await createClient();
-
   const [consultants, types] = await Promise.all([
-    listConsultantsVerifies(supabase),
-    listTypes(supabase),
+    listConsultantsVerifies(db),
+    listTypes(db),
   ]);
 
   // Créneaux libres par consultant (peu de consultants en MVP).
   const choix: ConsultantChoix[] = await Promise.all(
     consultants.map(async (c) => {
-      const creneaux = await listCreneauxLibres(supabase, c.id);
+      const creneaux = await listCreneauxLibres(db, c.id);
       return {
         id: c.id,
         nom: c.nom,
@@ -34,7 +32,7 @@ export default async function ReserverPage() {
             dateStyle: 'medium',
             timeStyle: 'short',
             timeZone: 'Africa/Porto-Novo',
-          }).format(new Date(s.start_at)),
+          }).format(new Date(s.startAt)),
         })),
       };
     }),
@@ -43,8 +41,8 @@ export default async function ReserverPage() {
   const typesChoix: TypeChoix[] = types.map((t) => ({
     id: t.id,
     libelle: t.libelle,
-    tarifFcfa: t.tarif_fcfa,
-    dureeMin: t.duree_min,
+    tarifFcfa: t.tarifFcfa,
+    dureeMin: t.dureeMin,
   }));
 
   return (

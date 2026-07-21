@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
+import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { ok, fail, type ActionResult } from '@/shared/lib/result';
 import { isAppError } from '@/shared/lib/errors';
@@ -26,11 +26,10 @@ export async function majFicheEcole(
 
   try {
     const profil = await assertRole('ecole');
-    const supabase = await createClient();
-    const ecoleId = await getEcoleIdPourUser(supabase, profil.id);
+    const ecoleId = await getEcoleIdPourUser(db, profil.id);
     if (!ecoleId) return fail('non_autorise', 'Aucune école rattachée à ton compte.');
 
-    await majFiche(supabase, ecoleId, parsed.data);
+    await majFiche(db, ecoleId, parsed.data);
     revalidatePath('/ecole/fiche');
     return ok(undefined);
   } catch (e) {

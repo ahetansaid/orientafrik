@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import { db } from '@/lib/db';
 import Link from 'next/link';
 import { Users, UserCog, School, Wallet } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { listProfiles, listEcoles, listPaiements } from '@/features/admin/data/admin.repo';
 import { fcfa } from '@/shared/lib/format';
@@ -12,17 +12,16 @@ export const metadata: Metadata = { title: 'Admin — vue d’ensemble' };
 
 export default async function AdminDashboard() {
   await assertRole('admin');
-  const supabase = await createClient();
   const [profiles, ecoles, paiements] = await Promise.all([
-    listProfiles(supabase),
-    listEcoles(supabase),
-    listPaiements(supabase),
+    listProfiles(db),
+    listEcoles(db),
+    listPaiements(db),
   ]);
 
   const consultants = profiles.filter((p) => p.role === 'consultant').length;
   const encaisse = paiements
     .filter((p) => p.statut === 'succeeded')
-    .reduce((s, p) => s + p.amount_fcfa, 0);
+    .reduce((s, p) => s + p.amountFcfa, 0);
 
   const cartes = [
     { label: 'Utilisateurs', value: String(profiles.length), href: '/admin/roles', icon: Users, tone: 'navy' as const },

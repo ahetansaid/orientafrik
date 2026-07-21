@@ -1,27 +1,34 @@
 'use client';
-import { Suspense, useActionState, useEffect } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck } from 'lucide-react';
-import { verifierOtp } from '@/features/compte/actions/connexion';
+import { authClient } from '@/lib/auth-client';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
-import type { ActionResult } from '@/shared/lib/result';
 
 function VerifierForm() {
   const router = useRouter();
   const params = useSearchParams();
   const email = params.get('email') ?? '';
+  const [pending, setPending] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
 
-  const [state, formAction, pending] = useActionState<ActionResult | null, FormData>(
-    (_prev, formData) => verifierOtp(_prev, formData),
-    null,
-  );
-
-  useEffect(() => {
-    // Le callback route déterminera l'accueil du rôle ; ici on renvoie sur / qui
-    // laissera le middleware/layout rediriger selon le profil.
-    if (state?.ok) router.push('/');
-  }, [state, router]);
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setErreur(null);
+    const otp = (new FormData(e.currentTarget).get('code') as string)?.trim();
+    if (!otp) return;
+    setPending(true);
+    const { error } = await authClient.signIn.emailOtp({ email, otp });
+    setPending(false);
+    if (error) {
+      setErreur('Code incorrect ou expiré.');
+      return;
+    }
+    // Le middleware/layout redirige ensuite selon le rôle.
+    router.push('/');
+    router.refresh();
+  }
 
   return (
     <div className="space-y-4">
@@ -34,8 +41,7 @@ function VerifierForm() {
           Saisis le code à 6 chiffres envoyé à <span className="font-medium">{email}</span>.
         </p>
       </div>
-      <form action={formAction} className="space-y-3">
-        <input type="hidden" name="email" value={email} />
+      <form onSubmit={onSubmit} className="space-y-3">
         <label htmlFor="code" className="sr-only">
           Code de vérification
         </label>
@@ -50,9 +56,9 @@ function VerifierForm() {
           placeholder="123456"
           className="text-center text-lg tracking-[0.4em]"
         />
-        {state && !state.ok && (
+        {erreur && (
           <p role="alert" className="text-sm text-red-600">
-            {state.message}
+            {erreur}
           </p>
         )}
         <Button type="submit" size="lg" className="w-full" disabled={pending}>

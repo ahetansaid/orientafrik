@@ -27,7 +27,7 @@ export default async function ConsultantLayout({ children }: { children: React.R
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-slate-500">{profil.full_name ?? profil.email}</span>
+            <span className="text-slate-500">{profil.fullName ?? profil.email}</span>
             <form action={seDeconnecter}>
               <button className="text-slate-600 hover:text-navy">Déconnexion</button>
             </form>

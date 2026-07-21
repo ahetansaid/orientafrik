@@ -1,7 +1,7 @@
 'use client';
 import { useTransition } from 'react';
 import { changerStatutConsultation } from '@/features/consultant/actions/statut-consultation';
-import type { ConsultationStatut } from '@/lib/supabase/enums';
+import type { ConsultationStatut } from '@/lib/db/enums';
 
 // Actions du consultant sur une consultation confirmée (terminer / annuler / no-show).
 export function ConsultationActions({ id }: { id: string }) {

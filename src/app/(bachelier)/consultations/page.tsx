@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import { db } from '@/lib/db';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { listPourBachelier } from '@/features/consultant/data/consultations.repo';
 import { fcfa, dateBenin } from '@/shared/lib/format';
-import type { ConsultationStatut } from '@/lib/supabase/enums';
+import type { ConsultationStatut } from '@/lib/db/enums';
 
 export const metadata: Metadata = { title: 'Mes consultations' };
 
@@ -18,8 +18,7 @@ const LIBELLE_STATUT: Record<ConsultationStatut, string> = {
 
 export default async function MesConsultations() {
   const profil = await assertRole('bachelier');
-  const supabase = await createClient();
-  const consultations = await listPourBachelier(supabase, profil.id);
+  const consultations = await listPourBachelier(db, profil.id);
 
   return (
     <div className="space-y-6">
@@ -49,10 +48,10 @@ export default async function MesConsultations() {
               className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 text-sm"
             >
               <span className="font-medium text-navy">
-                {c.scheduled_at ? dateBenin(c.scheduled_at) : 'Sans créneau'}
+                {c.scheduledAt ? dateBenin(c.scheduledAt) : 'Sans créneau'}
               </span>
               <span className="text-slate-500">
-                {LIBELLE_STATUT[c.statut]} · {c.prix_fcfa === 0 ? 'gratuit' : fcfa(c.prix_fcfa)}
+                {LIBELLE_STATUT[c.statut]} · {c.prixFcfa === 0 ? 'gratuit' : fcfa(c.prixFcfa)}
               </span>
             </li>
           ))}

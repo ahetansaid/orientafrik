@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
+import { db } from '@/lib/db';
 import { Wallet, CalendarCheck, Clock } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { listPourConsultant } from '@/features/consultant/data/consultations.repo';
 import { fcfa } from '@/shared/lib/format';
@@ -11,11 +11,10 @@ export const metadata: Metadata = { title: 'Tableau de bord consultant' };
 
 export default async function DashboardConsultant() {
   const profil = await assertRole('consultant');
-  const supabase = await createClient();
-  const consultations = await listPourConsultant(supabase, profil.id);
+  const consultations = await listPourConsultant(db, profil.id);
 
   const encaisses = consultations.filter((c) => c.statut === 'confirmed' || c.statut === 'completed');
-  const netTotal = encaisses.reduce((s, c) => s + c.net_consultant_fcfa, 0);
+  const netTotal = encaisses.reduce((s, c) => s + c.netConsultantFcfa, 0);
   const enAttente = consultations.filter((c) => c.statut === 'pending').length;
 
   return (

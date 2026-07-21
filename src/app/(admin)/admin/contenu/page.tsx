@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { listParcours, listEcoles, listBourses } from '@/features/admin/data/admin.repo';
 import { StatutContenu } from '@/features/admin/ui/StatutContenu';
@@ -8,11 +8,10 @@ export const metadata: Metadata = { title: 'Admin — contenu' };
 
 export default async function ContenuPage() {
   await assertRole('admin');
-  const supabase = await createClient();
   const [parcours, ecoles, bourses] = await Promise.all([
-    listParcours(supabase),
-    listEcoles(supabase),
-    listBourses(supabase),
+    listParcours(db),
+    listEcoles(db),
+    listBourses(db),
   ]);
 
   return (

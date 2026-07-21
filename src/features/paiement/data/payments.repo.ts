@@ -1,16 +1,12 @@
 import 'server-only';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/types';
-import { AppError } from '@/shared/lib/errors';
+import { eq } from 'drizzle-orm';
+import type { DB } from '@/lib/db';
+import { payments } from '@/lib/db/schema';
 import type { PaymentPurpose, PaymentStatut } from '@/features/paiement/domain/fedapay.types';
 
-type DB = SupabaseClient<Database>;
-export type PaymentRow = Database['public']['Tables']['payments']['Row'];
+export type PaymentRow = typeof payments.$inferSelect;
 
-// La table payments n'a AUCUNE policy insert/update (deny-by-default) : toutes
-// ces écritures doivent passer par le client service_role (action serveur de
-// confiance ou webhook). La lecture, elle, passe par le client RLS (payments_read_own).
-
+// Écritures paiement : côté serveur uniquement (action de confiance / webhook).
 export async function creerPaiement(
   db: DB,
   args: {
@@ -22,32 +18,26 @@ export async function creerPaiement(
     relatedId: string;
   },
 ): Promise<string> {
-  const { data, error } = await db
-    .from('payments')
-    .insert({
-      user_id: args.userId,
+  const [row] = await db
+    .insert(payments)
+    .values({
+      userId: args.userId,
       purpose: args.purpose,
-      amount_fcfa: args.amountFcfa,
+      amountFcfa: args.amountFcfa,
       statut: 'pending',
-      fedapay_transaction_id: args.fedapayTransactionId,
-      related_type: args.relatedType,
-      related_id: args.relatedId,
+      fedapayTransactionId: args.fedapayTransactionId,
+      relatedType: args.relatedType,
+      relatedId: args.relatedId,
     })
-    .select('id')
-    .single();
-
-  if (error || !data) throw new AppError('externe', 'Création du paiement impossible.', error);
-  return data.id;
+    .returning({ id: payments.id });
+  return row!.id;
 }
 
-// Idempotence : retrouve un paiement par sa transaction Fedapay (index unique).
 export async function getParTransaction(db: DB, txId: string): Promise<PaymentRow | null> {
-  const { data } = await db
-    .from('payments')
-    .select('*')
-    .eq('fedapay_transaction_id', txId)
-    .maybeSingle();
-  return data ?? null;
+  const row = await db.query.payments.findFirst({
+    where: eq(payments.fedapayTransactionId, txId),
+  });
+  return row ?? null;
 }
 
 export async function marquerStatut(
@@ -55,12 +45,10 @@ export async function marquerStatut(
   txId: string,
   statut: PaymentStatut,
 ): Promise<PaymentRow | null> {
-  const { data, error } = await db
-    .from('payments')
-    .update({ statut })
-    .eq('fedapay_transaction_id', txId)
-    .select('*')
-    .maybeSingle();
-  if (error) throw new AppError('externe', 'Mise à jour du paiement impossible.', error);
-  return data ?? null;
+  const [row] = await db
+    .update(payments)
+    .set({ statut })
+    .where(eq(payments.fedapayTransactionId, txId))
+    .returning();
+  return row ?? null;
 }

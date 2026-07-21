@@ -1,7 +1,8 @@
 # ORIENTAFRIK — Conventions du projet
 
 Plateforme tripartite d'orientation post-bac (Bénin) : **bacheliers / écoles / consultants + admin**.
-Next.js 16 (App Router, RSC, Server Actions) · Supabase (Postgres/Auth/Storage/RLS) · Vercel.
+Next.js 16 (App Router, RSC, Server Actions) · **Neon** (Postgres) · **Drizzle ORM** ·
+**Better Auth** (email-OTP) · **Vercel Blob** · Vercel.
 
 ## Langue & unités
 - **Français partout** : domaine, UI, commentaires, noms de routes.
@@ -11,22 +12,29 @@ Next.js 16 (App Router, RSC, Server Actions) · Supabase (Postgres/Auth/Storage/
 ## Architecture feature-first
 Un dossier par domaine sous `src/features/<domaine>/`. `src/app/` reste mince et importe les features.
 
-Anatomie d'une feature, **imports à sens unique** : `ui → actions → domain + data` · `data → lib/supabase`.
-- `domain/` — TS pur (règles, types, schémas Zod `*.schema.ts`). Aucun `supabase`/`next/*`/I-O. Cible des tests unitaires.
-- `data/` (`*.repo.ts`) — **seul** endroit des requêtes Supabase. Chaque fn **reçoit** un `SupabaseClient<Database>` (injecté, testable).
+Anatomie d'une feature, **imports à sens unique** : `ui → actions → domain + data` · `data → lib/db`.
+- `domain/` — TS pur (règles, types, schémas Zod `*.schema.ts`). Aucun accès DB/`next/*`/I-O. Cible des tests unitaires.
+- `data/` (`*.repo.ts`) — **seul** endroit des requêtes DB. Chaque fn **reçoit** le client Drizzle `db` (injecté, testable).
 - `actions/` — `'use server'`. Orchestrent `Zod → domain → repo → revalidatePath → ActionResult`. Pas de math métier.
 - `ui/` — RSC par défaut ; `'use client'` seulement si interactif. **Ne jamais importer `data/`** (règle ESLint).
 
-## 3 clients Supabase — ne jamais mélanger
-- `@/lib/supabase/server` — session utilisateur, **RLS** (RSC, actions). Défaut.
-- `@/lib/supabase/service` — `service_role`, **bypasse la RLS**. Webhooks + jobs admin uniquement. `server-only`.
-- `@/lib/supabase/client` — navigateur, anon, RLS. Interactivité seulement.
+## Base & accès données (Drizzle + Neon)
+- Schéma = source de vérité : `src/lib/db/schema.ts` (métier) + `src/lib/db/auth-schema.ts` (Better Auth).
+- Client unique `@/lib/db#db` (Neon serverless). Les enums TS : `@/lib/db/enums`.
+- **Pas d'API data exposée au client** (pas de PostgREST) : tout accès passe par le code serveur.
 
-## Sécurité (double frontière)
-1. `assertRole()` dans chaque `layout.tsx` de route-group (serveur).
-2. **RLS Postgres** = garde ultime. Le `middleware.ts` n'est qu'un premier filtre, jamais la sécurité.
-- Écriture `payments` : **jamais** de policy insert/update — passe par le webhook (`service`).
-- Rôles école/consultant **provisionnés par l'admin** (anti-fraude commission). Défaut à l'inscription : `bachelier`.
+## Auth (Better Auth)
+- Config `@/lib/auth#auth` (email-OTP, tables dans Neon). Client navigateur `@/lib/auth-client#authClient`.
+- Session serveur : `@/lib/auth/session` (`getUser`/`getProfile`, en `cache()`), gardes `@/lib/auth/guards` (`assertRole`).
+- `profiles` (rôle métier) créé à l'inscription via un hook Better Auth ; `profiles.id` = id utilisateur (`text`).
+
+## Sécurité (autorisation côté serveur)
+1. `proxy.ts` — filtre grossier (session présente sur zones protégées). Jamais la sécurité.
+2. `assertRole()` dans chaque `layout.tsx` de route-group (serveur).
+3. **Scoping d'appartenance** dans repos/actions : chacun ne lit/écrit que ses lignes.
+- Champs sensibles (paiement `is_paid`, `role`, `commission`, `is_verified`, statuts) : écrits uniquement
+  par des actions serveur de confiance (webhook Fedapay, actions admin). Jamais depuis une entrée client brute.
+- Rôles école/consultant **provisionnés par l'admin** (anti-fraude commission). Défaut inscription : `bachelier`.
 
 ## Contrats
 - Server Actions renvoient `ActionResult<T>` (`@/shared/lib/result`) — **jamais** d'exception vers le client.
@@ -36,15 +44,13 @@ Anatomie d'une feature, **imports à sens unique** : `ui → actions → domain 
 ## Plan de Parcours — colonne vertébrale
 Un seul objet `PlanParcours` (`features/bachelier/domain/plan-parcours.ts`) assemblé **une fois**, rendu **deux fois** :
 infographie gratuite (`ui/InfographieParcours.tsx`) + PDF payant (`pdf/PlanParcoursPDF.tsx`, `@react-pdf/renderer`, jamais Puppeteer).
-Le bloc `premium` n'est assemblé qu'à la génération PDF (le `data` gratuit reste léger).
 
 ## Partage public (croissance)
-`/p/[shareSlug]` + carte OG exposent **uniquement prénom + top3 + scores** via la fonction SQL `get_shared_plan`.
-Jamais d'email/moyenne/nom complet. `share_slug` opaque, distinct de l'UUID.
+`/p/[shareSlug]` expose **uniquement prénom + top3 + scores** (repo `partage` qui ne projette que ces champs).
+Jamais d'email/moyenne/nom complet. `share_slug` opaque, distinct de l'id.
 
 ## Base de données
-Source de vérité = `supabase/migrations/0001…0009`. Après changement de schéma :
-`npm run db:reset` puis `npm run db:types` (régénère `src/lib/supabase/types.ts` — ne pas l'éditer à la main).
+Source de vérité = `src/lib/db/schema.ts`. Après changement : `npm run drizzle:generate` puis `npm run drizzle:migrate`.
 
 ## Commandes
-`npm run dev` · `lint` · `typecheck` · `test:run` · `test:e2e` · `db:reset` · `db:types`
+`npm run dev` · `lint` · `typecheck` · `test:run` · `test:e2e` · `drizzle:generate` · `drizzle:migrate`

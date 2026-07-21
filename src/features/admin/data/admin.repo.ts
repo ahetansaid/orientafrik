@@ -1,41 +1,32 @@
 import 'server-only';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/types';
-import type { UserRole, ContenuStatut } from '@/lib/supabase/enums';
-import { AppError } from '@/shared/lib/errors';
+import { eq, desc, asc } from 'drizzle-orm';
+import type { DB } from '@/lib/db';
+import {
+  profiles,
+  consultants,
+  ecoleMembres,
+  parcours,
+  ecoles,
+  bourses,
+  payments,
+} from '@/lib/db/schema';
+import type { UserRole, ContenuStatut } from '@/lib/db/enums';
 import type { PartenariatValues } from '@/features/admin/domain/admin.schema';
 
-type DB = SupabaseClient<Database>;
-export type ProfileRow = Database['public']['Tables']['profiles']['Row'];
-export type PaymentRow = Database['public']['Tables']['payments']['Row'];
-
-// Toutes ces opérations passent par le client RLS : la session admin satisfait
-// les policies is_admin() (accès complet). Pas besoin de service_role ici.
+export type ProfileRow = typeof profiles.$inferSelect;
+export type PaymentRow = typeof payments.$inferSelect;
 
 // ---- Utilisateurs & rôles ----
 export async function listProfiles(db: DB): Promise<ProfileRow[]> {
-  const { data, error } = await db
-    .from('profiles')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) throw new AppError('externe', 'Lecture des utilisateurs impossible.', error);
-  return data ?? [];
+  return db.select().from(profiles).orderBy(desc(profiles.createdAt));
 }
 
 export async function definirRole(db: DB, userId: string, role: UserRole): Promise<void> {
-  const { error } = await db
-    .from('profiles')
-    .update({ role, updated_at: new Date().toISOString() })
-    .eq('id', userId);
-  if (error) throw new AppError('externe', 'Changement de rôle impossible.', error);
+  await db.update(profiles).set({ role, updatedAt: new Date() }).where(eq(profiles.id, userId));
 }
 
-// Crée la ligne consultant (vérifiée) si absente — appelée à la promotion consultant.
 export async function creerConsultantSiAbsent(db: DB, userId: string): Promise<void> {
-  const { error } = await db
-    .from('consultants')
-    .upsert({ id: userId, is_verified: true }, { onConflict: 'id' });
-  if (error) throw new AppError('externe', 'Création du profil consultant impossible.', error);
+  await db.insert(consultants).values({ id: userId, isVerified: true }).onConflictDoNothing();
 }
 
 export async function rattacherMembre(
@@ -44,30 +35,43 @@ export async function rattacherMembre(
   userId: string,
   roleEcole: string,
 ): Promise<void> {
-  const { error } = await db
-    .from('ecole_membres')
-    .upsert({ ecole_id: ecoleId, user_id: userId, role_ecole: roleEcole }, { onConflict: 'ecole_id,user_id' });
-  if (error) throw new AppError('externe', 'Rattachement à l’école impossible.', error);
+  await db
+    .insert(ecoleMembres)
+    .values({ ecoleId, userId, roleEcole })
+    .onConflictDoUpdate({
+      target: [ecoleMembres.ecoleId, ecoleMembres.userId],
+      set: { roleEcole },
+    });
 }
 
-// ---- Contenu (toutes lignes, tous statuts : l'admin les voit via RLS) ----
+// ---- Contenu (toutes lignes, tous statuts) ----
 export async function listParcours(db: DB) {
-  const { data, error } = await db.from('parcours').select('id, titre, slug, statut').order('titre');
-  if (error) throw new AppError('externe', 'Lecture des parcours impossible.', error);
-  return data ?? [];
+  return db
+    .select({ id: parcours.id, titre: parcours.titre, slug: parcours.slug, statut: parcours.statut })
+    .from(parcours)
+    .orderBy(asc(parcours.titre));
 }
+
 export async function listEcoles(db: DB) {
-  const { data, error } = await db
-    .from('ecoles')
-    .select('id, nom, slug, statut, partenariat, commission_min_fcfa, commission_max_fcfa')
-    .order('nom');
-  if (error) throw new AppError('externe', 'Lecture des écoles impossible.', error);
-  return data ?? [];
+  return db
+    .select({
+      id: ecoles.id,
+      nom: ecoles.nom,
+      slug: ecoles.slug,
+      statut: ecoles.statut,
+      partenariat: ecoles.partenariat,
+      commissionMinFcfa: ecoles.commissionMinFcfa,
+      commissionMaxFcfa: ecoles.commissionMaxFcfa,
+    })
+    .from(ecoles)
+    .orderBy(asc(ecoles.nom));
 }
+
 export async function listBourses(db: DB) {
-  const { data, error } = await db.from('bourses').select('id, nom, statut').order('nom');
-  if (error) throw new AppError('externe', 'Lecture des bourses impossible.', error);
-  return data ?? [];
+  return db
+    .select({ id: bourses.id, nom: bourses.nom, statut: bourses.statut })
+    .from(bourses)
+    .orderBy(asc(bourses.nom));
 }
 
 export async function publierContenu(
@@ -76,38 +80,25 @@ export async function publierContenu(
   id: string,
   statut: ContenuStatut,
 ): Promise<void> {
-  // Switch explicite : évite l'inférence d'union de `from(type)` (payload -> never).
-  const q =
-    type === 'parcours'
-      ? db.from('parcours').update({ statut }).eq('id', id)
-      : type === 'ecoles'
-        ? db.from('ecoles').update({ statut }).eq('id', id)
-        : db.from('bourses').update({ statut }).eq('id', id);
-  const { error } = await q;
-  if (error) throw new AppError('externe', 'Changement de statut impossible.', error);
+  if (type === 'parcours') await db.update(parcours).set({ statut }).where(eq(parcours.id, id));
+  else if (type === 'ecoles') await db.update(ecoles).set({ statut }).where(eq(ecoles.id, id));
+  else await db.update(bourses).set({ statut }).where(eq(bourses.id, id));
 }
 
 // ---- Partenariat & commission école ----
 export async function majPartenariat(db: DB, v: PartenariatValues): Promise<void> {
-  const { error } = await db
-    .from('ecoles')
-    .update({
+  await db
+    .update(ecoles)
+    .set({
       partenariat: v.partenariat,
-      commission_min_fcfa: v.commissionMinFcfa ?? null,
-      commission_max_fcfa: v.commissionMaxFcfa ?? null,
-      updated_at: new Date().toISOString(),
+      commissionMinFcfa: v.commissionMinFcfa ?? null,
+      commissionMaxFcfa: v.commissionMaxFcfa ?? null,
+      updatedAt: new Date(),
     })
-    .eq('id', v.ecoleId);
-  if (error) throw new AppError('externe', 'Mise à jour du partenariat impossible.', error);
+    .where(eq(ecoles.id, v.ecoleId));
 }
 
-// ---- Paiements (registre de vérité, lecture) ----
+// ---- Paiements (lecture) ----
 export async function listPaiements(db: DB): Promise<PaymentRow[]> {
-  const { data, error } = await db
-    .from('payments')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(200);
-  if (error) throw new AppError('externe', 'Lecture des paiements impossible.', error);
-  return data ?? [];
+  return db.select().from(payments).orderBy(desc(payments.createdAt)).limit(200);
 }

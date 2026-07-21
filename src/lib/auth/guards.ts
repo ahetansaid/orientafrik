@@ -1,7 +1,7 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
 import { getProfile, getUser, type Profile } from '@/lib/auth/session';
-import type { UserRole } from '@/lib/supabase/enums';
+import type { UserRole } from '@/lib/db/enums';
 
 // Destination par défaut de chaque rôle après connexion / en cas de mauvais rôle.
 export const HOME_BY_ROLE: Record<UserRole, string> = {

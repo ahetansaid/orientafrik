@@ -1,7 +1,6 @@
 'use server';
 import 'server-only';
-import { createClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase/service';
+import { db } from '@/lib/db';
 import { requireUser } from '@/lib/auth/guards';
 import { clientEnv } from '@/lib/env';
 import { TARIF_PDF_FCFA } from '@/shared/lib/constants';
@@ -11,18 +10,17 @@ import { getPlan } from '@/features/bachelier/data/plans.repo';
 import { creerCheckout } from '@/features/paiement/services/fedapay.client';
 import { creerPaiement } from '@/features/paiement/data/payments.repo';
 
-// Démarre le paiement du PDF (200 F) : crée le checkout Fedapay et enregistre un
-// paiement `pending`. Le passage à is_paid se fera au webhook (idempotent).
+// Démarre le paiement du PDF (200 F) : checkout Fedapay + paiement `pending`.
+// Le passage à is_paid se fait au webhook (idempotent).
 export async function demarrerPaiementPdf(
   planId: string,
 ): Promise<ActionResult<{ checkoutUrl: string }>> {
   try {
     const user = await requireUser();
-    const supabase = await createClient();
 
-    const plan = await getPlan(supabase, planId);
-    if (!plan) return fail('introuvable', 'Plan introuvable.');
-    if (plan.is_paid) return fail('conflit', 'Ce plan est déjà payé.');
+    const plan = await getPlan(db, planId);
+    if (!plan || plan.bachelierId !== user.id) return fail('introuvable', 'Plan introuvable.');
+    if (plan.isPaid) return fail('conflit', 'Ce plan est déjà payé.');
 
     const checkout = await creerCheckout({
       montantFcfa: TARIF_PDF_FCFA,
@@ -31,9 +29,7 @@ export async function demarrerPaiementPdf(
       email: user.email ?? undefined,
     });
 
-    // Écriture payments via service_role (aucune policy insert côté user).
-    const service = createServiceClient();
-    await creerPaiement(service, {
+    await creerPaiement(db, {
       userId: user.id,
       purpose: 'pdf_plan',
       amountFcfa: TARIF_PDF_FCFA,
