@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { listCreneauxLibres } from '@/features/consultant/data/disponibilites.repo';
 import { CreneauForm } from '@/features/consultant/ui/CreneauForm';
@@ -9,8 +9,7 @@ export const metadata: Metadata = { title: 'Mes disponibilités' };
 
 export default async function DisponibilitesPage() {
   const profil = await assertRole('consultant');
-  const supabase = await createClient();
-  const creneaux = await listCreneauxLibres(supabase, profil.id);
+  const creneaux = await listCreneauxLibres(db, profil.id);
 
   return (
     <div className="space-y-6">
@@ -27,7 +26,7 @@ export default async function DisponibilitesPage() {
           <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
             {creneaux.map((c) => (
               <li key={c.id} className="px-4 py-3 text-sm">
-                {dateBenin(c.start_at)} — {new Date(c.end_at).toLocaleTimeString('fr-FR', {
+                {dateBenin(c.startAt)} — {new Date(c.endAt).toLocaleTimeString('fr-FR', {
                   hour: '2-digit',
                   minute: '2-digit',
                   timeZone: 'Africa/Porto-Novo',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import { db } from '@/lib/db';
 import Link from 'next/link';
 import { Compass, FileText, GraduationCap, Wallet } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { getEcoleIdPourUser } from '@/features/ecole/data/membres.repo';
 import { listPourEcole } from '@/features/ecole/data/inscriptions.repo';
@@ -13,8 +13,7 @@ export const metadata: Metadata = { title: 'Tableau de bord école' };
 
 export default async function DashboardEcole() {
   const profil = await assertRole('ecole');
-  const supabase = await createClient();
-  const ecoleId = await getEcoleIdPourUser(supabase, profil.id);
+  const ecoleId = await getEcoleIdPourUser(db, profil.id);
 
   if (!ecoleId) {
     return (
@@ -25,11 +24,11 @@ export default async function DashboardEcole() {
     );
   }
 
-  const inscriptions = await listPourEcole(supabase, ecoleId);
+  const inscriptions = await listPourEcole(db, ecoleId);
   const par = (s: string) => inscriptions.filter((i) => i.statut === s).length;
   const commissionDue = inscriptions
     .filter((i) => i.statut === 'inscrite')
-    .reduce((sum, i) => sum + (i.commission_fcfa ?? 0), 0);
+    .reduce((sum, i) => sum + (i.commissionFcfa ?? 0), 0);
 
   return (
     <div className="space-y-6">

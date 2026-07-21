@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { listEcoles } from '@/features/admin/data/admin.repo';
 import { PartenariatForm } from '@/features/admin/ui/PartenariatForm';
@@ -8,8 +8,7 @@ export const metadata: Metadata = { title: 'Admin — partenariats' };
 
 export default async function PartenariatsPage() {
   await assertRole('admin');
-  const supabase = await createClient();
-  const ecoles = await listEcoles(supabase);
+  const ecoles = await listEcoles(db);
 
   return (
     <div className="space-y-6">
@@ -28,8 +27,8 @@ export default async function PartenariatsPage() {
               ecoleId: e.id,
               nom: e.nom,
               partenariat: e.partenariat,
-              commissionMinFcfa: e.commission_min_fcfa,
-              commissionMaxFcfa: e.commission_max_fcfa,
+              commissionMinFcfa: e.commissionMinFcfa,
+              commissionMaxFcfa: e.commissionMaxFcfa,
             }}
           />
         ))}

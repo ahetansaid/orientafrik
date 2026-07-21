@@ -1,26 +1,30 @@
 'use client';
-import { useActionState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Mail } from 'lucide-react';
-import { demanderOtp } from '@/features/compte/actions/connexion';
+import { authClient } from '@/lib/auth-client';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
-import type { ActionResult } from '@/shared/lib/result';
 
 export default function ConnexionPage() {
   const router = useRouter();
-  const [state, formAction, pending] = useActionState<ActionResult | null, FormData>(
-    (_prev, formData) => demanderOtp(_prev, formData),
-    null,
-  );
+  const [pending, setPending] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state?.ok) {
-      const email = (document.getElementById('email') as HTMLInputElement)?.value ?? '';
-      router.push(`/verifier?email=${encodeURIComponent(email)}`);
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setErreur(null);
+    const email = (new FormData(e.currentTarget).get('email') as string)?.trim();
+    if (!email) return;
+    setPending(true);
+    const { error } = await authClient.emailOtp.sendVerificationOtp({ email, type: 'sign-in' });
+    setPending(false);
+    if (error) {
+      setErreur("Envoi du code impossible. Réessaie dans un instant.");
+      return;
     }
-  }, [state, router]);
+    router.push(`/verifier?email=${encodeURIComponent(email)}`);
+  }
 
   return (
     <div className="space-y-4">
@@ -33,7 +37,7 @@ export default function ConnexionPage() {
           Reçois un code à 6 chiffres par email. Pas de mot de passe.
         </p>
       </div>
-      <form action={formAction} className="space-y-3">
+      <form onSubmit={onSubmit} className="space-y-3">
         <label htmlFor="email" className="sr-only">
           Adresse email
         </label>
@@ -45,9 +49,9 @@ export default function ConnexionPage() {
           required
           placeholder="ton.email@exemple.bj"
         />
-        {state && !state.ok && (
+        {erreur && (
           <p role="alert" className="text-sm text-red-600">
-            {state.message}
+            {erreur}
           </p>
         )}
         <Button type="submit" size="lg" className="w-full" disabled={pending}>

@@ -1,17 +1,13 @@
 import 'server-only';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/types';
+import { eq } from 'drizzle-orm';
+import type { DB } from '@/lib/db';
+import { ecoleMembres } from '@/lib/db/schema';
 
-type DB = SupabaseClient<Database>;
-
-// Résout l'école rattachée à un membre staff (RLS ecole_membres_self).
-// Un membre = une école en MVP.
+// École rattachée à un membre staff (un membre = une école en MVP).
 export async function getEcoleIdPourUser(db: DB, userId: string): Promise<string | null> {
-  const { data } = await db
-    .from('ecole_membres')
-    .select('ecole_id')
-    .eq('user_id', userId)
-    .limit(1)
-    .maybeSingle();
-  return data?.ecole_id ?? null;
+  const row = await db.query.ecoleMembres.findFirst({
+    where: eq(ecoleMembres.userId, userId),
+    columns: { ecoleId: true },
+  });
+  return row?.ecoleId ?? null;
 }

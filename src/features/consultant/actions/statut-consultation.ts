@@ -1,12 +1,12 @@
 'use server';
 import 'server-only';
+import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
 import { assertRole } from '@/lib/auth/guards';
 import { ok, fail, type ActionResult } from '@/shared/lib/result';
 import { isAppError } from '@/shared/lib/errors';
 import { majStatut } from '@/features/consultant/data/consultations.repo';
-import type { ConsultationStatut } from '@/lib/supabase/enums';
+import type { ConsultationStatut } from '@/lib/db/enums';
 
 // Le consultant fait avancer une consultation (terminée / annulée / no-show).
 // La RLS (consult_parties_update) autorise le consultant concerné.
@@ -21,8 +21,7 @@ export async function changerStatutConsultation(
   }
   try {
     await assertRole('consultant');
-    const supabase = await createClient();
-    await majStatut(supabase, consultationId, statut);
+    await majStatut(db, consultationId, statut);
     revalidatePath('/consultant/consultations');
     return ok(undefined);
   } catch (e) {

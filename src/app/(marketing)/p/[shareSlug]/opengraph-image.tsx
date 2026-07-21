@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { getPlanPartage } from '@/features/bachelier/data/partage.repo';
 import { BRAND } from '@/shared/lib/constants';
 
@@ -12,8 +12,7 @@ export const contentType = 'image/png';
 
 export default async function OgImage({ params }: { params: Promise<{ shareSlug: string }> }) {
   const { shareSlug } = await params;
-  const supabase = await createClient();
-  const plan = await getPlanPartage(supabase, shareSlug);
+  const plan = await getPlanPartage(db, shareSlug);
   const prenom = plan?.prenom ?? 'Mon';
   const top3 = plan?.top3 ?? [];
 

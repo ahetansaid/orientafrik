@@ -1,29 +1,27 @@
 import 'server-only';
 import { cache } from 'react';
-import { createClient } from '@/lib/supabase/server';
-import type { Database } from '@/lib/supabase/types';
-import type { UserRole } from '@/lib/supabase/enums';
+import { headers } from 'next/headers';
+import { eq } from 'drizzle-orm';
+import { auth, ensureProfile } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { profiles } from '@/lib/db/schema';
+import type { UserRole } from '@/lib/db/enums';
 
-export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Profile = typeof profiles.$inferSelect;
 
-// getUser / getProfile enrobés dans cache() : une seule requête par cycle de
-// rendu, réutilisée par le layout, la page et les actions d'une même requête.
-
+// getUser / getProfile en cache() : une lecture par cycle de rendu, réutilisée
+// par le layout, la page et les actions d'une même requête.
 export const getUser = cache(async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session?.user ?? null;
 });
 
 export const getProfile = cache(async (): Promise<Profile | null> => {
   const user = await getUser();
   if (!user) return null;
-
-  const supabase = await createClient();
-  const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-  return data ?? null;
+  const p = await db.query.profiles.findFirst({ where: eq(profiles.id, user.id) });
+  // Filet : crée le profil s'il manque (ex. hook manqué).
+  return p ?? (await ensureProfile(user.id, user.email, user.name)) ?? null;
 });
 
 export async function getRole(): Promise<UserRole | null> {

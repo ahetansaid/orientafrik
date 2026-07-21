@@ -1,15 +1,31 @@
 import 'server-only';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/types';
+import { eq } from 'drizzle-orm';
+import type { DB } from '@/lib/db';
+import { plansParcours } from '@/lib/db/schema';
 import type { PlanPartage } from '@/features/bachelier/domain/partage';
+import type { PlanParcours } from '@/features/bachelier/domain/plan-parcours';
 
-type DB = SupabaseClient<Database>;
-
-// Lecture publique NON-PII d'un plan partagé via la fonction SQL security definer.
-// Renvoie null si le slug n'existe pas / le plan n'est pas partagé.
+// Vue publique NON-PII d'un plan partagé (prénom + top3 + scores). Aucune autre donnée.
 export async function getPlanPartage(db: DB, slug: string): Promise<PlanPartage | null> {
-  const { data, error } = await db.rpc('get_shared_plan', { _slug: slug });
-  if (error || !data) return null;
-  const p = data as unknown as PlanPartage | null;
-  return p && p.prenom ? p : null;
+  const row = await db.query.plansParcours.findFirst({
+    where: eq(plansParcours.shareSlug, slug),
+    columns: { data: true, shareSlug: true },
+  });
+  if (!row || !row.shareSlug) return null;
+
+  const data = row.data as unknown as PlanParcours;
+  const prenom = data?.bachelier?.prenom;
+  if (!prenom) return null;
+
+  return {
+    prenom,
+    serie: data.bachelier.serie,
+    genereLe: data.genereLe,
+    top3: (data.top3 ?? []).map((f) => ({
+      slug: f.slug,
+      titre: f.titre,
+      score: f.score,
+      pourquoi: f.pourquoi,
+    })),
+  };
 }

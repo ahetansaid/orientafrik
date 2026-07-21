@@ -1,7 +1,7 @@
 'use client';
 import { useTransition } from 'react';
 import { changerStatutContenu } from '@/features/admin/actions/contenu';
-import type { ContenuStatut } from '@/lib/supabase/enums';
+import type { ContenuStatut } from '@/lib/db/enums';
 
 // Bascule le statut de publication d'un contenu (parcours / école / bourse).
 export function StatutContenu({

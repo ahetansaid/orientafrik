@@ -1,23 +1,23 @@
 import 'server-only';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/types';
-import { AppError } from '@/shared/lib/errors';
+import { and, eq, gt, asc } from 'drizzle-orm';
+import type { DB } from '@/lib/db';
+import { disponibilites } from '@/lib/db/schema';
 import type { CreneauValues } from '@/features/consultant/domain/dispo.schema';
 
-type DB = SupabaseClient<Database>;
-export type DispoRow = Database['public']['Tables']['disponibilites']['Row'];
+export type DispoRow = typeof disponibilites.$inferSelect;
 
-// Créneaux futurs encore libres d'un consultant (pour la réservation).
 export async function listCreneauxLibres(db: DB, consultantId: string): Promise<DispoRow[]> {
-  const { data, error } = await db
-    .from('disponibilites')
-    .select('*')
-    .eq('consultant_id', consultantId)
-    .eq('is_booked', false)
-    .gt('start_at', new Date().toISOString())
-    .order('start_at', { ascending: true });
-  if (error) throw new AppError('externe', 'Lecture des créneaux impossible.', error);
-  return data ?? [];
+  return db
+    .select()
+    .from(disponibilites)
+    .where(
+      and(
+        eq(disponibilites.consultantId, consultantId),
+        eq(disponibilites.isBooked, false),
+        gt(disponibilites.startAt, new Date()),
+      ),
+    )
+    .orderBy(asc(disponibilites.startAt));
 }
 
 export async function insererCreneaux(
@@ -25,17 +25,15 @@ export async function insererCreneaux(
   consultantId: string,
   creneaux: CreneauValues[],
 ): Promise<void> {
-  const { error } = await db.from('disponibilites').insert(
+  await db.insert(disponibilites).values(
     creneaux.map((c) => ({
-      consultant_id: consultantId,
-      start_at: c.startAt,
-      end_at: c.endAt,
+      consultantId,
+      startAt: new Date(c.startAt),
+      endAt: new Date(c.endAt),
     })),
   );
-  if (error) throw new AppError('externe', 'Publication des créneaux impossible.', error);
 }
 
 export async function marquerReserve(db: DB, slotId: string): Promise<void> {
-  const { error } = await db.from('disponibilites').update({ is_booked: true }).eq('id', slotId);
-  if (error) throw new AppError('externe', 'Réservation du créneau impossible.', error);
+  await db.update(disponibilites).set({ isBooked: true }).where(eq(disponibilites.id, slotId));
 }

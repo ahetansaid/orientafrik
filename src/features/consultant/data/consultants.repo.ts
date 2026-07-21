@@ -1,12 +1,10 @@
 import 'server-only';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/supabase/types';
-import { AppError } from '@/shared/lib/errors';
+import { eq } from 'drizzle-orm';
+import type { DB } from '@/lib/db';
+import { consultants, profiles } from '@/lib/db/schema';
 
-type DB = SupabaseClient<Database>;
-export type ConsultantRow = Database['public']['Tables']['consultants']['Row'];
+export type ConsultantRow = typeof consultants.$inferSelect;
 
-// Consultant vérifié + nom (récupéré séparément pour éviter l'embed jsonb typé).
 export interface ConsultantPublic {
   id: string;
   nom: string;
@@ -16,27 +14,28 @@ export interface ConsultantPublic {
 }
 
 export async function listConsultantsVerifies(db: DB): Promise<ConsultantPublic[]> {
-  const { data: consultants, error } = await db
-    .from('consultants')
-    .select('id, bio, specialites, photo_url')
-    .eq('is_verified', true);
-  if (error) throw new AppError('externe', 'Lecture des consultants impossible.', error);
-  if (!consultants?.length) return [];
+  const rows = await db
+    .select({
+      id: consultants.id,
+      bio: consultants.bio,
+      specialites: consultants.specialites,
+      photoUrl: consultants.photoUrl,
+      nom: profiles.fullName,
+    })
+    .from(consultants)
+    .innerJoin(profiles, eq(profiles.id, consultants.id))
+    .where(eq(consultants.isVerified, true));
 
-  const ids = consultants.map((c) => c.id);
-  const { data: profils } = await db.from('profiles').select('id, full_name').in('id', ids);
-  const nomParId = new Map((profils ?? []).map((p) => [p.id, p.full_name ?? 'Consultant']));
-
-  return consultants.map((c) => ({
+  return rows.map((c) => ({
     id: c.id,
-    nom: nomParId.get(c.id) ?? 'Consultant',
+    nom: c.nom ?? 'Consultant',
     bio: c.bio,
     specialites: Array.isArray(c.specialites) ? (c.specialites as string[]) : [],
-    photoUrl: c.photo_url,
+    photoUrl: c.photoUrl,
   }));
 }
 
 export async function getConsultant(db: DB, id: string): Promise<ConsultantRow | null> {
-  const { data } = await db.from('consultants').select('*').eq('id', id).maybeSingle();
-  return data ?? null;
+  const row = await db.query.consultants.findFirst({ where: eq(consultants.id, id) });
+  return row ?? null;
 }

@@ -1,7 +1,5 @@
-import type { Database } from '@/lib/supabase/types';
-
-export type PaymentPurpose = Database['public']['Enums']['payment_purpose'];
-export type PaymentStatut = Database['public']['Enums']['payment_statut'];
+import type { PaymentPurpose, PaymentStatut } from '@/lib/db/enums';
+export type { PaymentPurpose, PaymentStatut };
 
 // Résultat d'une création de transaction : identifiant Fedapay + URL de checkout.
 export interface CheckoutFedapay {

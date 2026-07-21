@@ -1,7 +1,7 @@
 'use server';
 import 'server-only';
+import { db } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
 import { requireUser } from '@/lib/auth/guards';
 import { fail, type ActionResult } from '@/shared/lib/result';
 import { isAppError } from '@/shared/lib/errors';
@@ -34,10 +34,9 @@ export async function soumettreProfil(
   let planId: string;
   try {
     const user = await requireUser();
-    const supabase = await createClient();
     const profil = versProfilBachelier(parsed.data);
 
-    const { parcours, ecoles, bourses } = await chargerCatalogue(supabase);
+    const { parcours, ecoles, bourses } = await chargerCatalogue(db);
     if (parcours.length === 0) {
       return fail('introuvable', 'Le catalogue de parcours est momentanément indisponible.');
     }
@@ -50,9 +49,9 @@ export async function soumettreProfil(
       premium: false,
     });
 
-    const profilId = await insererProfil(supabase, user.id, parsed.data, scores);
+    const profilId = await insererProfil(db, user.id, parsed.data, scores);
     const parcoursPrincipalSlug = plan.top3[0]?.slug ?? null;
-    planId = await insererPlan(supabase, {
+    planId = await insererPlan(db, {
       bachelierId: user.id,
       profilId,
       // parcours_principal_id référence parcours.id (uuid). On le laisse null en MVP :

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { getEcoleIdPourUser } from '@/features/ecole/data/membres.repo';
 import { listPourEcole } from '@/features/ecole/data/inscriptions.repo';
 import { CandidatureActions } from '@/features/ecole/ui/CandidatureActions';
 import { fcfa, dateBenin } from '@/shared/lib/format';
-import type { InscriptionStatut } from '@/lib/supabase/enums';
+import type { InscriptionStatut } from '@/lib/db/enums';
 
 export const metadata: Metadata = { title: 'Candidatures' };
 
@@ -18,8 +18,7 @@ const LIBELLE: Record<InscriptionStatut, string> = {
 
 export default async function CandidaturesPage() {
   const profil = await assertRole('ecole');
-  const supabase = await createClient();
-  const ecoleId = await getEcoleIdPourUser(supabase, profil.id);
+  const ecoleId = await getEcoleIdPourUser(db, profil.id);
   if (!ecoleId) {
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800">
@@ -28,7 +27,7 @@ export default async function CandidaturesPage() {
     );
   }
 
-  const inscriptions = await listPourEcole(supabase, ecoleId);
+  const inscriptions = await listPourEcole(db, ecoleId);
 
   return (
     <div className="space-y-6">
@@ -45,9 +44,9 @@ export default async function CandidaturesPage() {
               <div>
                 <p className="font-medium text-navy">{LIBELLE[i.statut]}</p>
                 <p className="text-slate-500">
-                  Orientée le {dateBenin(i.orientee_at)}
-                  {i.statut === 'inscrite' && i.commission_fcfa != null && (
-                    <> · commission {fcfa(i.commission_fcfa)}</>
+                  Orientée le {dateBenin(i.orienteeAt)}
+                  {i.statut === 'inscrite' && i.commissionFcfa != null && (
+                    <> · commission {fcfa(i.commissionFcfa)}</>
                   )}
                 </p>
               </div>

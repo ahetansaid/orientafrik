@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
 import { assertRole } from '@/lib/auth/guards';
 import { listProfiles, listEcoles } from '@/features/admin/data/admin.repo';
 import { RoleControls } from '@/features/admin/ui/RoleControls';
@@ -8,8 +8,7 @@ export const metadata: Metadata = { title: 'Admin — rôles' };
 
 export default async function RolesPage() {
   await assertRole('admin');
-  const supabase = await createClient();
-  const [profiles, ecoles] = await Promise.all([listProfiles(supabase), listEcoles(supabase)]);
+  const [profiles, ecoles] = await Promise.all([listProfiles(db), listEcoles(db)]);
   const ecoleOptions = ecoles.map((e) => ({ id: e.id, nom: e.nom }));
 
   return (
@@ -17,7 +16,7 @@ export default async function RolesPage() {
       <div>
         <h1 className="text-2xl font-bold text-navy">Rôles & provisioning</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Les rôles consultant / école sont attribués ici (jamais en self-service).
+          Les rôles consultant / école sont attribués ici (jamais en self-db).
         </p>
       </div>
 
@@ -33,7 +32,7 @@ export default async function RolesPage() {
             {profiles.map((p) => (
               <tr key={p.id}>
                 <td className="px-4 py-3">
-                  <div className="font-medium text-navy">{p.full_name ?? '—'}</div>
+                  <div className="font-medium text-navy">{p.fullName ?? '—'}</div>
                   <div className="text-slate-500">{p.email}</div>
                 </td>
                 <td className="px-4 py-3">

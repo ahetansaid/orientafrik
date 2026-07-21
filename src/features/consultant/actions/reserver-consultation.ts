@@ -1,7 +1,8 @@
 'use server';
 import 'server-only';
-import { createClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase/service';
+import { eq } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { disponibilites } from '@/lib/db/schema';
 import { requireUser } from '@/lib/auth/guards';
 import { clientEnv } from '@/lib/env';
 import { ok, fail, type ActionResult } from '@/shared/lib/result';
@@ -14,9 +15,8 @@ import { creerCheckout } from '@/features/paiement/services/fedapay.client';
 import { creerPaiement } from '@/features/paiement/data/payments.repo';
 
 // Un bachelier réserve une consultation. Gratuite (n1) -> confirmée directement.
-// Payante -> consultation `pending` + checkout Fedapay ; la confirmation viendra
-// du webhook. Le créneau est marqué réservé dès la demande (via service_role,
-// la RLS des créneaux étant réservée au consultant).
+// Payante -> consultation `pending` + checkout Fedapay ; la confirmation vient du
+// webhook. Le prix/commission/statut sont calculés côté serveur (non falsifiables).
 export async function reserverConsultation(
   input: unknown,
 ): Promise<ActionResult<{ checkoutUrl: string | null }>> {
@@ -27,34 +27,29 @@ export async function reserverConsultation(
 
   try {
     const user = await requireUser();
-    const supabase = await createClient();
-    const service = createServiceClient();
 
-    const type = await getType(supabase, parsed.data.typeId);
+    const type = await getType(db, parsed.data.typeId);
     if (!type) return fail('introuvable', 'Type de consultation inconnu.');
 
     // Créneau (optionnel) : récupère l'horaire prévu.
     let scheduledAt: string | null = null;
     if (parsed.data.slotId) {
-      const { data: slot } = await supabase
-        .from('disponibilites')
-        .select('start_at, is_booked')
-        .eq('id', parsed.data.slotId)
-        .maybeSingle();
+      const slot = await db.query.disponibilites.findFirst({
+        where: eq(disponibilites.id, parsed.data.slotId),
+        columns: { startAt: true, isBooked: true },
+      });
       if (!slot) return fail('introuvable', 'Créneau introuvable.');
-      if (slot.is_booked) return fail('conflit', 'Ce créneau vient d’être réservé.');
-      scheduledAt = slot.start_at;
+      if (slot.isBooked) return fail('conflit', 'Ce créneau vient d’être réservé.');
+      scheduledAt = slot.startAt.toISOString();
     }
 
     const { prixFcfa, commissionFcfa, netConsultantFcfa } = calculerRepartition(
-      type.tarif_fcfa,
-      type.commission_pct,
+      type.tarifFcfa,
+      type.commissionPct,
     );
     const gratuite = prixFcfa === 0;
 
-    // Insertion via service_role : le prix/commission/statut sont calculés serveur
-    // et ne doivent pas être falsifiables par le client (cf. durcissement 0011).
-    const consultationId = await insererConsultation(service, {
+    const consultationId = await insererConsultation(db, {
       bachelierId: user.id,
       consultantId: parsed.data.consultantId,
       typeId: parsed.data.typeId,
@@ -66,7 +61,7 @@ export async function reserverConsultation(
       scheduledAt,
     });
 
-    if (parsed.data.slotId) await marquerReserve(service, parsed.data.slotId);
+    if (parsed.data.slotId) await marquerReserve(db, parsed.data.slotId);
 
     if (gratuite) return ok({ checkoutUrl: null });
 
@@ -76,7 +71,7 @@ export async function reserverConsultation(
       callbackUrl: `${clientEnv.NEXT_PUBLIC_SITE_URL}/consultations?paiement=retour`,
       email: user.email ?? undefined,
     });
-    await creerPaiement(service, {
+    await creerPaiement(db, {
       userId: user.id,
       purpose: 'consultation',
       amountFcfa: prixFcfa,
