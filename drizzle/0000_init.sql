@@ -10,7 +10,7 @@ CREATE TYPE "public"."payment_statut" AS ENUM('pending', 'succeeded', 'failed', 
 CREATE TYPE "public"."user_role" AS ENUM('bachelier', 'ecole', 'consultant', 'admin');--> statement-breakpoint
 CREATE TABLE "bachelier_profils" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"bachelier_id" uuid NOT NULL,
+	"bachelier_id" text NOT NULL,
 	"serie_bac" "bac_serie",
 	"moyenne" numeric(4, 2),
 	"interets" jsonb DEFAULT '[]'::jsonb NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE "bourses" (
 );
 --> statement-breakpoint
 CREATE TABLE "consultants" (
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"bio" text,
 	"specialites" jsonb DEFAULT '[]'::jsonb NOT NULL,
 	"is_verified" boolean DEFAULT false NOT NULL,
@@ -55,8 +55,8 @@ CREATE TABLE "consultation_types" (
 --> statement-breakpoint
 CREATE TABLE "consultations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"bachelier_id" uuid NOT NULL,
-	"consultant_id" uuid NOT NULL,
+	"bachelier_id" text NOT NULL,
+	"consultant_id" text NOT NULL,
 	"type_id" uuid NOT NULL,
 	"slot_id" uuid,
 	"statut" "consultation_statut" DEFAULT 'pending' NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE "consultations" (
 --> statement-breakpoint
 CREATE TABLE "disponibilites" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"consultant_id" uuid NOT NULL,
+	"consultant_id" text NOT NULL,
 	"start_at" timestamp with time zone NOT NULL,
 	"end_at" timestamp with time zone NOT NULL,
 	"is_booked" boolean DEFAULT false NOT NULL
@@ -78,7 +78,7 @@ CREATE TABLE "disponibilites" (
 --> statement-breakpoint
 CREATE TABLE "ecole_membres" (
 	"ecole_id" uuid NOT NULL,
-	"user_id" uuid NOT NULL,
+	"user_id" text NOT NULL,
 	"role_ecole" text DEFAULT 'staff' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "ecole_membres_ecole_id_user_id_pk" PRIMARY KEY("ecole_id","user_id")
@@ -107,12 +107,12 @@ CREATE TABLE "ecoles" (
 --> statement-breakpoint
 CREATE TABLE "inscriptions_ecole" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"bachelier_id" uuid NOT NULL,
+	"bachelier_id" text NOT NULL,
 	"ecole_id" uuid NOT NULL,
 	"plan_id" uuid,
 	"statut" "inscription_statut" DEFAULT 'orientee' NOT NULL,
 	"commission_fcfa" integer,
-	"confirmed_by" uuid,
+	"confirmed_by" text,
 	"orientee_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"inscrite_at" timestamp with time zone
 );
@@ -125,7 +125,7 @@ CREATE TABLE "parcours" (
 	"resume" text,
 	"contenu" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"statut" "contenu_statut" DEFAULT 'draft' NOT NULL,
-	"verified_by" uuid,
+	"verified_by" text,
 	"verified_at" timestamp with time zone,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "parcours_slug_unique" UNIQUE("slug")
@@ -133,7 +133,7 @@ CREATE TABLE "parcours" (
 --> statement-breakpoint
 CREATE TABLE "payments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
+	"user_id" text NOT NULL,
 	"purpose" "payment_purpose" NOT NULL,
 	"amount_fcfa" integer NOT NULL,
 	"statut" "payment_statut" DEFAULT 'pending' NOT NULL,
@@ -145,7 +145,7 @@ CREATE TABLE "payments" (
 --> statement-breakpoint
 CREATE TABLE "plans_parcours" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"bachelier_id" uuid NOT NULL,
+	"bachelier_id" text NOT NULL,
 	"profil_id" uuid NOT NULL,
 	"parcours_principal_id" uuid,
 	"data" jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -159,13 +159,61 @@ CREATE TABLE "plans_parcours" (
 );
 --> statement-breakpoint
 CREATE TABLE "profiles" (
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"role" "user_role" DEFAULT 'bachelier' NOT NULL,
 	"full_name" text,
 	"email" text,
 	"phone" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "account" (
+	"id" text PRIMARY KEY NOT NULL,
+	"account_id" text NOT NULL,
+	"provider_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"access_token" text,
+	"refresh_token" text,
+	"id_token" text,
+	"access_token_expires_at" timestamp,
+	"refresh_token_expires_at" timestamp,
+	"scope" text,
+	"password" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "session" (
+	"id" text PRIMARY KEY NOT NULL,
+	"expires_at" timestamp NOT NULL,
+	"token" text NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"ip_address" text,
+	"user_agent" text,
+	"user_id" text NOT NULL,
+	CONSTRAINT "session_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
+CREATE TABLE "user" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"email" text NOT NULL,
+	"email_verified" boolean DEFAULT false NOT NULL,
+	"image" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "user_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
+CREATE TABLE "verification" (
+	"id" text PRIMARY KEY NOT NULL,
+	"identifier" text NOT NULL,
+	"value" text NOT NULL,
+	"expires_at" timestamp NOT NULL,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 ALTER TABLE "bachelier_profils" ADD CONSTRAINT "bachelier_profils_bachelier_id_profiles_id_fk" FOREIGN KEY ("bachelier_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -186,6 +234,8 @@ ALTER TABLE "payments" ADD CONSTRAINT "payments_user_id_profiles_id_fk" FOREIGN 
 ALTER TABLE "plans_parcours" ADD CONSTRAINT "plans_parcours_bachelier_id_profiles_id_fk" FOREIGN KEY ("bachelier_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "plans_parcours" ADD CONSTRAINT "plans_parcours_profil_id_bachelier_profils_id_fk" FOREIGN KEY ("profil_id") REFERENCES "public"."bachelier_profils"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "plans_parcours" ADD CONSTRAINT "plans_parcours_parcours_principal_id_parcours_id_fk" FOREIGN KEY ("parcours_principal_id") REFERENCES "public"."parcours"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "bachelier_profils_bachelier_idx" ON "bachelier_profils" USING btree ("bachelier_id");--> statement-breakpoint
 CREATE INDEX "consultations_consultant_idx" ON "consultations" USING btree ("consultant_id");--> statement-breakpoint
 CREATE INDEX "consultations_bachelier_idx" ON "consultations" USING btree ("bachelier_id");--> statement-breakpoint

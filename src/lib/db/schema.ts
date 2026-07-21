@@ -61,10 +61,10 @@ export const inscriptionStatut = pgEnum('inscription_statut', [
 ]);
 
 // ---------- Identité ----------
-// profiles.id = id utilisateur Stack Auth (synchronisé par Neon Auth dans
-// neon_auth.users_sync). Le `role` métier vit ici.
+// profiles.id = id utilisateur Better Auth (table `user`, id `text`). Peuplé à la
+// création de l'utilisateur (hook Better Auth). Le `role` métier vit ici.
 export const profiles = pgTable('profiles', {
-  id: uuid('id').primaryKey(),
+  id: text('id').primaryKey(),
   role: userRole('role').notNull().default('bachelier'),
   fullName: text('full_name'),
   email: text('email'),
@@ -84,7 +84,7 @@ export const parcours = pgTable('parcours', {
     .notNull()
     .default(sql`'{}'::jsonb`),
   statut: contenuStatut('statut').notNull().default('draft'),
-  verifiedBy: uuid('verified_by').references(() => profiles.id),
+  verifiedBy: text('verified_by').references(() => profiles.id),
   verifiedAt: timestamp('verified_at', { withTimezone: true }),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -115,7 +115,7 @@ export const ecoleMembres = pgTable(
     ecoleId: uuid('ecole_id')
       .notNull()
       .references(() => ecoles.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
+    userId: text('user_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
     roleEcole: text('role_ecole').notNull().default('staff'),
@@ -144,7 +144,7 @@ export const bachelierProfils = pgTable(
   'bachelier_profils',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    bachelierId: uuid('bachelier_id')
+    bachelierId: text('bachelier_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
     serieBac: bacSerie('serie_bac'),
@@ -167,7 +167,7 @@ export const plansParcours = pgTable(
   'plans_parcours',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    bachelierId: uuid('bachelier_id')
+    bachelierId: text('bachelier_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
     profilId: uuid('profil_id')
@@ -189,7 +189,7 @@ export const plansParcours = pgTable(
 
 // ---------- Consultant ----------
 export const consultants = pgTable('consultants', {
-  id: uuid('id')
+  id: text('id')
     .primaryKey()
     .references(() => profiles.id, { onDelete: 'cascade' }),
   bio: text('bio'),
@@ -214,7 +214,7 @@ export const disponibilites = pgTable(
   'disponibilites',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    consultantId: uuid('consultant_id')
+    consultantId: text('consultant_id')
       .notNull()
       .references(() => consultants.id, { onDelete: 'cascade' }),
     startAt: timestamp('start_at', { withTimezone: true }).notNull(),
@@ -228,10 +228,10 @@ export const consultations = pgTable(
   'consultations',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    bachelierId: uuid('bachelier_id')
+    bachelierId: text('bachelier_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
-    consultantId: uuid('consultant_id')
+    consultantId: text('consultant_id')
       .notNull()
       .references(() => consultants.id),
     typeId: uuid('type_id')
@@ -257,7 +257,7 @@ export const inscriptionsEcole = pgTable(
   'inscriptions_ecole',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    bachelierId: uuid('bachelier_id')
+    bachelierId: text('bachelier_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
     ecoleId: uuid('ecole_id')
@@ -266,7 +266,7 @@ export const inscriptionsEcole = pgTable(
     planId: uuid('plan_id').references(() => plansParcours.id),
     statut: inscriptionStatut('statut').notNull().default('orientee'),
     commissionFcfa: integer('commission_fcfa'),
-    confirmedBy: uuid('confirmed_by').references(() => profiles.id),
+    confirmedBy: text('confirmed_by').references(() => profiles.id),
     orienteeAt: timestamp('orientee_at', { withTimezone: true }).notNull().defaultNow(),
     inscriteAt: timestamp('inscrite_at', { withTimezone: true }),
   },
@@ -278,7 +278,7 @@ export const payments = pgTable(
   'payments',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id')
+    userId: text('user_id')
       .notNull()
       .references(() => profiles.id, { onDelete: 'cascade' }),
     purpose: paymentPurpose('purpose').notNull(),

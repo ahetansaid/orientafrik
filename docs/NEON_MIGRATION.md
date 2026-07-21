@@ -11,10 +11,18 @@ Il faut donc remplacer **4 briques** :
 
 | Brique Supabase           | Remplacée par                                            |
 | ------------------------- | -------------------------------------------------------- |
-| Auth (GoTrue, OTP)        | **Neon Auth** (Stack Auth)                               |
-| RLS via `auth.uid()`      | **Neon Authorize** (RLS via JWT Stack, `auth.user_id()`) |
+| Auth (GoTrue, OTP)        | **Better Auth** (email-OTP, tables dans Neon via Drizzle) |
+| RLS via `auth.uid()`      | **Autorisation côté serveur** (voir note sécurité)       |
 | Storage (bucket PDF)      | **Vercel Blob**                                          |
 | PostgREST + `supabase-js` | **Drizzle ORM** + `@neondatabase/serverless`             |
+
+> **Note sécurité — pourquoi la RLS n'est plus l'unique garde.** Avec Supabase, le
+> client avait une API data publique (PostgREST) : la RLS + les GRANT colonne étaient
+> indispensables. Avec Neon + Drizzle, **il n'y a plus d'API data exposée au client** —
+> tout accès passe par notre code serveur (Server Actions / route handlers). La sécurité
+> repose donc sur l'autorisation serveur (`assertRole` + scoping par utilisateur dans les
+> repos), ce qui ferme d'office la classe d'attaques « falsification de colonne via l'API ».
+> La RLS Neon (Neon Authorize) reste possible en défense en profondeur ultérieure.
 
 ## Stack cible
 

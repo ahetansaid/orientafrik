@@ -1,5 +1,5 @@
 {
-  "id": "7b6b7e05-920b-4053-be9e-2652a22eae11",
+  "id": "d343de86-5ccf-49c2-8f74-6022f0e9ddce",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -17,7 +17,7 @@
         },
         "bachelier_id": {
           "name": "bachelier_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -99,8 +99,12 @@
           "name": "bachelier_profils_bachelier_id_profiles_id_fk",
           "tableFrom": "bachelier_profils",
           "tableTo": "profiles",
-          "columnsFrom": ["bachelier_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "bachelier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -195,7 +199,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
@@ -239,8 +243,12 @@
           "name": "consultants_id_profiles_id_fk",
           "tableFrom": "consultants",
           "tableTo": "profiles",
-          "columnsFrom": ["id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -302,7 +310,9 @@
         "consultation_types_code_unique": {
           "name": "consultation_types_code_unique",
           "nullsNotDistinct": false,
-          "columns": ["code"]
+          "columns": [
+            "code"
+          ]
         }
       },
       "policies": {},
@@ -322,13 +332,13 @@
         },
         "bachelier_id": {
           "name": "bachelier_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "consultant_id": {
           "name": "consultant_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -430,8 +440,12 @@
           "name": "consultations_bachelier_id_profiles_id_fk",
           "tableFrom": "consultations",
           "tableTo": "profiles",
-          "columnsFrom": ["bachelier_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "bachelier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -439,8 +453,12 @@
           "name": "consultations_consultant_id_consultants_id_fk",
           "tableFrom": "consultations",
           "tableTo": "consultants",
-          "columnsFrom": ["consultant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "consultant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -448,8 +466,12 @@
           "name": "consultations_type_id_consultation_types_id_fk",
           "tableFrom": "consultations",
           "tableTo": "consultation_types",
-          "columnsFrom": ["type_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "type_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -457,8 +479,12 @@
           "name": "consultations_slot_id_disponibilites_id_fk",
           "tableFrom": "consultations",
           "tableTo": "disponibilites",
-          "columnsFrom": ["slot_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "slot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -482,7 +508,7 @@
         },
         "consultant_id": {
           "name": "consultant_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -534,8 +560,12 @@
           "name": "disponibilites_consultant_id_consultants_id_fk",
           "tableFrom": "disponibilites",
           "tableTo": "consultants",
-          "columnsFrom": ["consultant_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "consultant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -558,7 +588,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -583,8 +613,12 @@
           "name": "ecole_membres_ecole_id_ecoles_id_fk",
           "tableFrom": "ecole_membres",
           "tableTo": "ecoles",
-          "columnsFrom": ["ecole_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "ecole_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -592,8 +626,12 @@
           "name": "ecole_membres_user_id_profiles_id_fk",
           "tableFrom": "ecole_membres",
           "tableTo": "profiles",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -601,7 +639,10 @@
       "compositePrimaryKeys": {
         "ecole_membres_ecole_id_user_id_pk": {
           "name": "ecole_membres_ecole_id_user_id_pk",
-          "columns": ["ecole_id", "user_id"]
+          "columns": [
+            "ecole_id",
+            "user_id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -731,7 +772,9 @@
         "ecoles_slug_unique": {
           "name": "ecoles_slug_unique",
           "nullsNotDistinct": false,
-          "columns": ["slug"]
+          "columns": [
+            "slug"
+          ]
         }
       },
       "policies": {},
@@ -751,7 +794,7 @@
         },
         "bachelier_id": {
           "name": "bachelier_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -783,7 +826,7 @@
         },
         "confirmed_by": {
           "name": "confirmed_by",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -823,8 +866,12 @@
           "name": "inscriptions_ecole_bachelier_id_profiles_id_fk",
           "tableFrom": "inscriptions_ecole",
           "tableTo": "profiles",
-          "columnsFrom": ["bachelier_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "bachelier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -832,8 +879,12 @@
           "name": "inscriptions_ecole_ecole_id_ecoles_id_fk",
           "tableFrom": "inscriptions_ecole",
           "tableTo": "ecoles",
-          "columnsFrom": ["ecole_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "ecole_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -841,8 +892,12 @@
           "name": "inscriptions_ecole_plan_id_plans_parcours_id_fk",
           "tableFrom": "inscriptions_ecole",
           "tableTo": "plans_parcours",
-          "columnsFrom": ["plan_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "plan_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -850,8 +905,12 @@
           "name": "inscriptions_ecole_confirmed_by_profiles_id_fk",
           "tableFrom": "inscriptions_ecole",
           "tableTo": "profiles",
-          "columnsFrom": ["confirmed_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "confirmed_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -914,7 +973,7 @@
         },
         "verified_by": {
           "name": "verified_by",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -938,8 +997,12 @@
           "name": "parcours_verified_by_profiles_id_fk",
           "tableFrom": "parcours",
           "tableTo": "profiles",
-          "columnsFrom": ["verified_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "verified_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -949,7 +1012,9 @@
         "parcours_slug_unique": {
           "name": "parcours_slug_unique",
           "nullsNotDistinct": false,
-          "columns": ["slug"]
+          "columns": [
+            "slug"
+          ]
         }
       },
       "policies": {},
@@ -969,7 +1034,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -1058,8 +1123,12 @@
           "name": "payments_user_id_profiles_id_fk",
           "tableFrom": "payments",
           "tableTo": "profiles",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1083,7 +1152,7 @@
         },
         "bachelier_id": {
           "name": "bachelier_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -1167,8 +1236,12 @@
           "name": "plans_parcours_bachelier_id_profiles_id_fk",
           "tableFrom": "plans_parcours",
           "tableTo": "profiles",
-          "columnsFrom": ["bachelier_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "bachelier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1176,8 +1249,12 @@
           "name": "plans_parcours_profil_id_bachelier_profils_id_fk",
           "tableFrom": "plans_parcours",
           "tableTo": "bachelier_profils",
-          "columnsFrom": ["profil_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "profil_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1185,8 +1262,12 @@
           "name": "plans_parcours_parcours_principal_id_parcours_id_fk",
           "tableFrom": "plans_parcours",
           "tableTo": "parcours",
-          "columnsFrom": ["parcours_principal_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "parcours_principal_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1196,7 +1277,9 @@
         "plans_parcours_share_slug_unique": {
           "name": "plans_parcours_share_slug_unique",
           "nullsNotDistinct": false,
-          "columns": ["share_slug"]
+          "columns": [
+            "share_slug"
+          ]
         }
       },
       "policies": {},
@@ -1209,7 +1292,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
@@ -1261,23 +1344,352 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.account": {
+      "name": "account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "access_token_expires_at": {
+          "name": "access_token_expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refresh_token_expires_at": {
+          "name": "refresh_token_expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "account_user_id_user_id_fk": {
+          "name": "account_user_id_user_id_fk",
+          "tableFrom": "account",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "session_user_id_user_id_fk": {
+          "name": "session_user_id_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "session_token_unique": {
+          "name": "session_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.verification": {
+      "name": "verification",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
     "public.bac_serie": {
       "name": "bac_serie",
       "schema": "public",
-      "values": ["A1", "A2", "B", "C", "D", "E", "F", "G", "autre"]
+      "values": [
+        "A1",
+        "A2",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "autre"
+      ]
     },
     "public.consultation_statut": {
       "name": "consultation_statut",
       "schema": "public",
-      "values": ["pending", "confirmed", "completed", "cancelled", "no_show"]
+      "values": [
+        "pending",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "no_show"
+      ]
     },
     "public.contenu_statut": {
       "name": "contenu_statut",
       "schema": "public",
-      "values": ["draft", "published", "archived"]
+      "values": [
+        "draft",
+        "published",
+        "archived"
+      ]
     },
     "public.ecole_type": {
       "name": "ecole_type",
@@ -1293,32 +1705,60 @@
     "public.inscription_statut": {
       "name": "inscription_statut",
       "schema": "public",
-      "values": ["orientee", "candidature", "inscrite", "annulee"]
+      "values": [
+        "orientee",
+        "candidature",
+        "inscrite",
+        "annulee"
+      ]
     },
     "public.mobilite": {
       "name": "mobilite",
       "schema": "public",
-      "values": ["cotonou", "benin", "uemoa", "international"]
+      "values": [
+        "cotonou",
+        "benin",
+        "uemoa",
+        "international"
+      ]
     },
     "public.partenariat_statut": {
       "name": "partenariat_statut",
       "schema": "public",
-      "values": ["non_partenaire", "prospect", "active", "suspended"]
+      "values": [
+        "non_partenaire",
+        "prospect",
+        "active",
+        "suspended"
+      ]
     },
     "public.payment_purpose": {
       "name": "payment_purpose",
       "schema": "public",
-      "values": ["pdf_plan", "consultation"]
+      "values": [
+        "pdf_plan",
+        "consultation"
+      ]
     },
     "public.payment_statut": {
       "name": "payment_statut",
       "schema": "public",
-      "values": ["pending", "succeeded", "failed", "refunded"]
+      "values": [
+        "pending",
+        "succeeded",
+        "failed",
+        "refunded"
+      ]
     },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": ["bachelier", "ecole", "consultant", "admin"]
+      "values": [
+        "bachelier",
+        "ecole",
+        "consultant",
+        "admin"
+      ]
     }
   },
   "schemas": {},
