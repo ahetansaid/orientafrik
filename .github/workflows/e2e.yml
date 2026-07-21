@@ -1,19 +1,17 @@
 name: E2E
 
+# Déclenchement manuel uniquement : les specs E2E doivent être réécrites pour la
+# stack Neon (Better Auth + Drizzle) — les anciennes specs RLS/Supabase ont été
+# retirées. Fournir un DATABASE_URL de test (branche Neon dédiée) via un secret.
 on:
-  schedule:
-    - cron: '0 3 * * *' # nightly 03:00 UTC
-  push:
-    branches: [main, master]
   workflow_dispatch:
 
 jobs:
   playwright:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key
-      SUPABASE_SERVICE_ROLE_KEY: ci-service-key
+      DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+      BETTER_AUTH_SECRET: ${{ secrets.TEST_BETTER_AUTH_SECRET }}
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
@@ -22,10 +20,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - name: Démarrer Supabase local
-        run: npx supabase start
+      - name: Migrer la base de test (Drizzle)
+        run: npm run drizzle:migrate
       - name: Installer les navigateurs Playwright
         run: npx playwright install --with-deps chromium
+      - name: Build
+        run: npm run build
       - name: Tests e2e
         run: npm run test:e2e
       - uses: actions/upload-artifact@v4

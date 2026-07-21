@@ -5,14 +5,14 @@ import { z } from 'zod';
 // Les clés NEXT_PUBLIC_* sont accessibles côté client ; les autres sont server-only.
 
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   NEXT_PUBLIC_SITE_URL: z.string().url().default('http://localhost:3000'),
   NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),
 });
 
 const serverSchema = z.object({
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  DATABASE_URL: z.string().min(1),
+  BETTER_AUTH_SECRET: z.string().optional(),
+  BLOB_READ_WRITE_TOKEN: z.string().optional(),
   FEDAPAY_SECRET_KEY: z.string().optional(),
   FEDAPAY_PUBLIC_KEY: z.string().optional(),
   FEDAPAY_WEBHOOK_SECRET: z.string().optional(),
@@ -20,17 +20,13 @@ const serverSchema = z.object({
   SENTRY_DSN: z.string().optional(),
 });
 
-// Côté client, seules les NEXT_PUBLIC_* sont réellement inlinées par Next :
-// on ne référence donc que celles-là dans clientEnv.
+// Côté client, seules les NEXT_PUBLIC_* sont réellement inlinées par Next.
 export const clientEnv = clientSchema.parse({
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   NEXT_PUBLIC_PLAUSIBLE_DOMAIN: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
 });
 
-// Accès paresseux au bloc serveur : n'est parsé que lorsqu'on l'appelle depuis
-// un contexte serveur (évite de faire échouer un rendu client sur une clé server-only).
+// Accès paresseux au bloc serveur (évite de faire échouer un rendu client sur une clé server-only).
 let _serverEnv: z.infer<typeof serverSchema> | null = null;
 export function serverEnv(): z.infer<typeof serverSchema> {
   if (typeof window !== 'undefined') {
@@ -38,7 +34,9 @@ export function serverEnv(): z.infer<typeof serverSchema> {
   }
   if (!_serverEnv) {
     _serverEnv = serverSchema.parse({
-      SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+      DATABASE_URL: process.env.DATABASE_URL,
+      BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+      BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
       FEDAPAY_SECRET_KEY: process.env.FEDAPAY_SECRET_KEY,
       FEDAPAY_PUBLIC_KEY: process.env.FEDAPAY_PUBLIC_KEY,
       FEDAPAY_WEBHOOK_SECRET: process.env.FEDAPAY_WEBHOOK_SECRET,

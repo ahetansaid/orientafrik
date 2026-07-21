@@ -9,10 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # Valeurs factices : suffisent à la validation env.ts et au build (aucun appel réseau).
-      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key
-      SUPABASE_SERVICE_ROLE_KEY: ci-service-key
+      # Valeurs factices : suffisent au build (aucun appel réseau à la compilation).
+      DATABASE_URL: postgresql://u:p@ep-ci.eu-central-1.aws.neon.tech/db?sslmode=require
+      BETTER_AUTH_SECRET: ci-better-auth-secret-placeholder-32chars
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
