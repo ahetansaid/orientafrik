@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Reveal, RevealGroup, RevealItem } from '@/shared/ui/motion/Reveal';
+import { HeroBackground } from './_components/HeroBackground';
 
 const px = (id: number, w = 1200) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
@@ -160,29 +161,29 @@ function PlanPreview() {
 export default function LandingPage() {
   return (
     <>
-      {/* ---------- HERO (épuré) ---------- */}
-      <section className="relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute left-1/2 top-[-12%] h-[460px] w-[820px] -translate-x-1/2 rounded-[50%] bg-gradient-to-br from-gold/12 via-navy/5 to-transparent blur-3xl" />
-        </div>
+      {/* ---------- HERO (vidéo plein cadre) ---------- */}
+      <section className="relative overflow-hidden text-white">
+        <HeroBackground />
 
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-24 lg:grid-cols-2 lg:gap-16">
-          <div>
+        <div className="mx-auto max-w-6xl px-4 pb-28 pt-20 sm:pb-32 sm:pt-28 lg:pb-40 lg:pt-36">
+          <div className="max-w-2xl">
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-gold backdrop-blur">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-gold backdrop-blur">
                 <Compass className="h-3.5 w-3.5" /> Orientation post-bac · Bénin
               </span>
             </Reveal>
             <Reveal delay={0.08}>
-              <h1 className="mt-6 text-balance text-4xl font-extrabold leading-[1.04] tracking-tight text-navy sm:text-6xl">
+              <h1 className="mt-6 text-balance text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-6xl">
                 Trouve ta voie après le bac,{' '}
-                <span className="text-gradient">sans hasard.</span>
+                <span className="bg-gradient-to-r from-gold to-amber-200 bg-clip-text text-transparent">
+                  sans hasard.
+                </span>
               </h1>
             </Reveal>
             <Reveal delay={0.16}>
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-600">
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/80">
                 Quelques questions, et tu reçois ton{' '}
-                <strong className="font-semibold text-navy">Plan de Parcours</strong> : 3 filières
+                <strong className="font-semibold text-white">Plan de Parcours</strong> : 3 filières
                 faites pour toi, les écoles à considérer et les bourses à viser.
               </p>
             </Reveal>
@@ -190,14 +191,14 @@ export default function LandingPage() {
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <Link
                   href="/connexion"
-                  className="group inline-flex items-center gap-2 rounded-xl bg-navy px-6 py-3.5 font-semibold text-white shadow-lg shadow-navy/20 transition hover:bg-navy/90"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-white shadow-lg shadow-gold/25 transition hover:bg-gold/90"
                 >
                   Créer mon plan gratuit
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
                 <Link
                   href="#comment"
-                  className="inline-flex items-center gap-1.5 font-semibold text-slate-600 transition hover:text-navy"
+                  className="inline-flex items-center gap-1.5 font-semibold text-white/90 transition hover:text-white"
                 >
                   Comment ça marche
                   <ArrowRight className="h-4 w-4" />
@@ -205,48 +206,22 @@ export default function LandingPage() {
               </div>
             </Reveal>
             <Reveal delay={0.32}>
-              <ul className="mt-9 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
+              <ul className="mt-9 flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/70">
                 {['100 % gratuit pour démarrer', 'Sans mot de passe', 'En français'].map((t) => (
                   <li key={t} className="flex items-center gap-1.5">
-                    <Check className="h-4 w-4 text-emerald-600" /> {t}
+                    <Check className="h-4 w-4 text-emerald-400" /> {t}
                   </li>
                 ))}
               </ul>
             </Reveal>
           </div>
-
-          <Reveal delay={0.2} y={40}>
-            <div className="relative mx-auto w-full max-w-md">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] shadow-2xl shadow-navy/20 ring-1 ring-slate-200/70">
-                <Image
-                  src={px(30649789, 900)}
-                  alt="Une bachelière béninoise devant son établissement"
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 450px"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy/25 via-transparent to-transparent" />
-              </div>
-              {/* accent unique, discret : aperçu de la piste n°1 */}
-              <div className="animate-float absolute -left-4 bottom-8 flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/95 p-3 pr-4 shadow-xl backdrop-blur sm:-left-8">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                  <Target className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-[11px] font-medium text-slate-400">Ta piste n°1</p>
-                  <p className="text-sm font-bold text-navy">Médecine · 92 %</p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </section>
 
-      {/* ---------- ACCÈS RAPIDE (tuiles, épuré) ---------- */}
-      <section className="mx-auto max-w-6xl px-4 pb-4">
+      {/* ---------- ACCÈS RAPIDE (tuiles, chevauchent le hero) ---------- */}
+      <section className="relative z-10 mx-auto -mt-16 max-w-6xl px-4 sm:-mt-20">
         <Reveal>
-          <div className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div className="rounded-3xl border border-slate-200 bg-white/95 p-3 shadow-xl shadow-navy/10 backdrop-blur">
             <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {TUILES.map((t) => (
                 <Tuile key={t.label} {...t} />
@@ -257,7 +232,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------- BANDEAU FILIÈRES ---------- */}
-      <section className="py-8">
+      <section className="pb-10 pt-16">
         <Reveal className="mx-auto mb-5 max-w-6xl px-4 text-center">
           <p className="text-sm font-medium text-slate-400">
             Des filières documentées et vérifiées, du plus classique au plus recherché
@@ -424,6 +399,8 @@ export default function LandingPage() {
                 texte: 'Ton plan gratuit, ton PDF détaillé, tes consultations et tes candidatures.',
                 img: px(34526424, 800),
                 alt: 'Étudiants qui révisent ensemble',
+                href: '/connexion',
+                cta: 'Créer mon plan',
               },
               {
                 icon: School,
@@ -431,6 +408,8 @@ export default function LandingPage() {
                 texte: 'Reçois des candidats qualifiés et suis chaque inscription de bout en bout.',
                 img: px(10604063, 800),
                 alt: 'Diplômés célébrant leur réussite',
+                href: '/connexion',
+                cta: 'Rejoindre',
               },
               {
                 icon: Users,
@@ -438,10 +417,15 @@ export default function LandingPage() {
                 texte: 'Publie tes créneaux, accompagne les bacheliers, gère tes revenus.',
                 img: px(34526416, 800),
                 alt: 'Accompagnement en classe',
+                href: '/connexion',
+                cta: 'Devenir consultant',
               },
             ].map((c) => (
               <RevealItem key={c.titre}>
-                <div className="group h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-xl hover:shadow-navy/5">
+                <Link
+                  href={c.href}
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-navy/20 hover:shadow-xl hover:shadow-navy/5"
+                >
                   <div className="relative aspect-[16/10] overflow-hidden">
                     <Image
                       src={c.img}
@@ -450,15 +434,20 @@ export default function LandingPage() {
                       sizes="(max-width: 768px) 100vw, 380px"
                       className="object-cover transition duration-500 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy/40 to-transparent opacity-0 transition group-hover:opacity-100" />
                     <span className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-white/90 text-navy shadow backdrop-blur">
                       <c.icon className="h-5 w-5" />
                     </span>
                   </div>
-                  <div className="p-5">
+                  <div className="flex flex-1 flex-col p-5">
                     <h3 className="text-lg font-bold text-navy">{c.titre}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-600">{c.texte}</p>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{c.texte}</p>
+                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-navy">
+                      {c.cta}
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
                   </div>
-                </div>
+                </Link>
               </RevealItem>
             ))}
           </RevealGroup>
