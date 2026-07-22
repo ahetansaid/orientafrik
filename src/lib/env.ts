@@ -17,6 +17,12 @@ const serverSchema = z.object({
   FEDAPAY_PUBLIC_KEY: z.string().optional(),
   FEDAPAY_WEBHOOK_SECRET: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
+  // Envoi d'email transactionnel (OTP) via SMTP — ex. Gmail.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
 });
 
@@ -41,6 +47,11 @@ export function serverEnv(): z.infer<typeof serverSchema> {
       FEDAPAY_PUBLIC_KEY: process.env.FEDAPAY_PUBLIC_KEY,
       FEDAPAY_WEBHOOK_SECRET: process.env.FEDAPAY_WEBHOOK_SECRET,
       RESEND_API_KEY: process.env.RESEND_API_KEY,
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+      SMTP_USER: process.env.SMTP_USER,
+      SMTP_PASS: process.env.SMTP_PASS,
+      EMAIL_FROM: process.env.EMAIL_FROM,
       SENTRY_DSN: process.env.SENTRY_DSN,
     });
   }

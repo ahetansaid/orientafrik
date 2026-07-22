@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { profiles } from '@/lib/db/schema';
 import * as authSchema from '@/lib/db/auth-schema';
+import { envoyerOTP } from '@/lib/email/send-otp';
 
 // Better Auth — auth « email-first » (OTP), stockée dans Neon via Drizzle.
 // Aucun service externe : les tables user/session/... vivent dans notre base.
@@ -22,19 +23,7 @@ export const auth = betterAuth({
       otpLength: 6,
       expiresIn: 600, // 10 min
       async sendVerificationOTP({ email, otp }) {
-        const key = process.env.RESEND_API_KEY;
-        if (!key) {
-          // Dev sans Resend : on logge le code (jamais en production).
-          console.info(`[OTP] ${email} → ${otp}`);
-          return;
-        }
-        const { Resend } = await import('resend');
-        await new Resend(key).emails.send({
-          from: 'ORIENTAFRIK <no-reply@orientafrik.bj>',
-          to: email,
-          subject: 'Ton code de connexion ORIENTAFRIK',
-          text: `Ton code de connexion est : ${otp}\nIl expire dans 10 minutes.`,
-        });
+        await envoyerOTP(email, otp);
       },
     }),
     nextCookies(), // doit rester le dernier plugin
