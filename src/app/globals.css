@@ -47,7 +47,39 @@ body {
   animation: float-soft 5s ease-in-out infinite;
 }
 
+/* Bandeau défilant (marquee) — ruban de filières « vivant ». */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 42s linear infinite;
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+/* Grille discrète en fond de section (repère graphique moderne). */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(18, 34, 74, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(18, 34, 74, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* Remplissage de barre animé (aperçu du plan). */
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.animate-grow-x {
+  transform-origin: left;
+  animation: grow-x 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-blob, .animate-float { animation: none; }
+  .animate-blob, .animate-float, .animate-marquee, .animate-grow-x { animation: none; }
+  .animate-grow-x { transform: none; }
   html { scroll-behavior: auto; }
 }
