@@ -17,12 +17,10 @@ import {
   FileText,
   Target,
   MapPin,
-  ShieldCheck,
   Star,
   type LucideIcon,
 } from 'lucide-react';
 import { Reveal, RevealGroup, RevealItem } from '@/shared/ui/motion/Reveal';
-import { SLOGAN } from '@/shared/lib/constants';
 
 const px = (id: number, w = 1200) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
@@ -46,12 +44,12 @@ function Tuile({ href, icon: Icon, label }: { href: string; icon: LucideIcon; la
   return (
     <Link
       href={href}
-      className="group flex min-w-[128px] flex-1 flex-col items-center gap-2 rounded-2xl bg-white/[0.07] px-4 py-5 text-center text-white ring-1 ring-white/10 transition hover:-translate-y-1 hover:bg-white/[0.12]"
+      className="group flex min-w-[116px] flex-1 flex-col items-center gap-2 rounded-2xl px-4 py-4 text-center transition hover:bg-slate-50"
     >
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-gold transition group-hover:bg-gold group-hover:text-navy">
-        <Icon className="h-6 w-6" />
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy/5 text-navy transition group-hover:bg-navy group-hover:text-white">
+        <Icon className="h-5 w-5" />
       </span>
-      <span className="text-sm font-medium leading-tight">{label}</span>
+      <span className="text-sm font-medium leading-tight text-slate-700">{label}</span>
     </Link>
   );
 }
@@ -162,16 +160,13 @@ function PlanPreview() {
 export default function LandingPage() {
   return (
     <>
-      {/* ---------- HERO ---------- */}
+      {/* ---------- HERO (épuré) ---------- */}
       <section className="relative overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="animate-blob absolute -left-24 -top-24 h-96 w-96 rounded-full bg-gold/20 blur-3xl" />
-          <div className="animate-blob absolute -right-16 top-16 h-96 w-96 rounded-full bg-navy/15 blur-3xl [animation-delay:4s]" />
-          <div className="bg-grid absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_top,#000_20%,transparent_70%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-slate-50" />
+          <div className="absolute left-1/2 top-[-12%] h-[460px] w-[820px] -translate-x-1/2 rounded-[50%] bg-gradient-to-br from-gold/12 via-navy/5 to-transparent blur-3xl" />
         </div>
 
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-24 lg:grid-cols-2 lg:gap-16">
           <div>
             <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-gold backdrop-blur">
@@ -179,20 +174,20 @@ export default function LandingPage() {
               </span>
             </Reveal>
             <Reveal delay={0.08}>
-              <h1 className="mt-5 text-balance text-4xl font-extrabold leading-[1.05] tracking-tight text-navy sm:text-6xl">
+              <h1 className="mt-6 text-balance text-4xl font-extrabold leading-[1.04] tracking-tight text-navy sm:text-6xl">
                 Trouve ta voie après le bac,{' '}
                 <span className="text-gradient">sans hasard.</span>
               </h1>
             </Reveal>
             <Reveal delay={0.16}>
-              <p className="mt-5 max-w-lg text-lg text-slate-600">
-                Réponds à quelques questions et reçois ton{' '}
-                <strong className="text-navy">Plan de Parcours</strong> : 3 filières faites pour toi,
-                les écoles à considérer et les bourses à viser. {SLOGAN}
+              <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-600">
+                Quelques questions, et tu reçois ton{' '}
+                <strong className="font-semibold text-navy">Plan de Parcours</strong> : 3 filières
+                faites pour toi, les écoles à considérer et les bourses à viser.
               </p>
             </Reveal>
             <Reveal delay={0.24}>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <Link
                   href="/connexion"
                   className="group inline-flex items-center gap-2 rounded-xl bg-navy px-6 py-3.5 font-semibold text-white shadow-lg shadow-navy/20 transition hover:bg-navy/90"
@@ -202,44 +197,57 @@ export default function LandingPage() {
                 </Link>
                 <Link
                   href="#comment"
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="inline-flex items-center gap-1.5 font-semibold text-slate-600 transition hover:text-navy"
                 >
                   Comment ça marche
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </Reveal>
             <Reveal delay={0.32}>
-              <ul className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
-                {['100 % gratuit pour démarrer', '3 filières sur mesure', 'Écoles & bourses'].map(
-                  (t) => (
-                    <li key={t} className="flex items-center gap-1.5">
-                      <Check className="h-4 w-4 text-emerald-600" /> {t}
-                    </li>
-                  ),
-                )}
+              <ul className="mt-9 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
+                {['100 % gratuit pour démarrer', 'Sans mot de passe', 'En français'].map((t) => (
+                  <li key={t} className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-emerald-600" /> {t}
+                  </li>
+                ))}
               </ul>
             </Reveal>
           </div>
 
           <Reveal delay={0.2} y={40}>
-            <div className="relative">
-              <PlanPreview />
-              <div className="animate-float absolute -right-3 -top-4 flex items-center gap-2 rounded-full bg-gold px-3 py-1.5 text-sm font-semibold text-white shadow-lg [animation-delay:1.5s]">
-                <Sparkles className="h-4 w-4" /> Sur mesure
+            <div className="relative mx-auto w-full max-w-md">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] shadow-2xl shadow-navy/20 ring-1 ring-slate-200/70">
+                <Image
+                  src={px(30649789, 900)}
+                  alt="Une bachelière béninoise devant son établissement"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 450px"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/25 via-transparent to-transparent" />
               </div>
-              <div className="animate-float absolute -bottom-4 -left-3 flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-navy shadow-lg ring-1 ring-slate-100 sm:-left-6">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" /> Transparent
+              {/* accent unique, discret : aperçu de la piste n°1 */}
+              <div className="animate-float absolute -left-4 bottom-8 flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/95 p-3 pr-4 shadow-xl backdrop-blur sm:-left-8">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <Target className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-[11px] font-medium text-slate-400">Ta piste n°1</p>
+                  <p className="text-sm font-bold text-navy">Médecine · 92 %</p>
+                </div>
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* ---------- ACCÈS RAPIDE (tuiles) ---------- */}
-      <section className="mx-auto -mt-4 max-w-6xl px-4 pb-6">
+      {/* ---------- ACCÈS RAPIDE (tuiles, épuré) ---------- */}
+      <section className="mx-auto max-w-6xl px-4 pb-4">
         <Reveal>
-          <div className="rounded-3xl bg-gradient-to-br from-navy to-[#0e1b3a] p-4 shadow-xl shadow-navy/20 sm:p-6">
-            <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {TUILES.map((t) => (
                 <Tuile key={t.label} {...t} />
               ))}
@@ -271,7 +279,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------- COMMENT ÇA MARCHE (timeline) ---------- */}
-      <section id="comment" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16">
+      <section id="comment" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:py-28">
         <Reveal className="mx-auto max-w-2xl text-center">
           <Eyebrow>Simple &amp; transparent</Eyebrow>
           <h2 className="mt-3 text-3xl font-bold text-navy sm:text-4xl">
@@ -324,7 +332,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------- CE QUE CONTIENT TON PLAN ---------- */}
-      <section id="plan" className="scroll-mt-20 bg-navy py-16 text-white">
+      <section id="plan" className="scroll-mt-20 bg-navy py-20 text-white sm:py-28">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 lg:grid-cols-2">
           <div>
             <div className="flex flex-col items-start gap-2">
@@ -397,7 +405,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------- POUR QUI ---------- */}
-      <section id="pour-qui" className="scroll-mt-20 py-16">
+      <section id="pour-qui" className="scroll-mt-20 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4">
           <Reveal className="mx-auto max-w-2xl text-center">
             <Eyebrow>Une plateforme, trois mondes</Eyebrow>
@@ -458,7 +466,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------- TÉMOIGNAGES ---------- */}
-      <section className="bg-slate-50/70 py-16">
+      <section className="bg-slate-50/70 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4">
           <Reveal className="mx-auto max-w-2xl text-center">
             <Eyebrow>Ils y voient plus clair</Eyebrow>
@@ -523,7 +531,7 @@ export default function LandingPage() {
       </section>
 
       {/* ---------- FAQ ---------- */}
-      <section id="faq" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-16">
+      <section id="faq" className="mx-auto max-w-3xl scroll-mt-20 px-4 py-20 sm:py-28">
         <Reveal className="text-center">
           <Eyebrow>Bon à savoir</Eyebrow>
           <h2 className="mt-3 text-3xl font-bold text-navy sm:text-4xl">Questions fréquentes</h2>
