@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail } from 'lucide-react';
+import { Mail, KeyRound, Sparkles } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -58,6 +58,15 @@ export default function ConnexionPage() {
           {pending ? 'Envoi…' : 'Recevoir mon code'}
         </Button>
       </form>
+
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 border-t border-slate-100 pt-4 text-xs text-slate-500">
+        <span className="flex items-center gap-1.5">
+          <KeyRound className="h-3.5 w-3.5 text-navy" /> Sans mot de passe
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-gold" /> Gratuit pour démarrer
+        </span>
+      </div>
     </div>
   );
 }
